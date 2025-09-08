@@ -1,0 +1,51 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+//pairs of values
+vector<pair<long long, long long>> ab;
+int main() {
+    //inputs
+	int N, M;
+    cin >> N >> M;
+    long long diff[2*M+1]={0}; //difference array, not sure if this is going to work
+    for (int i=0;i<N;i++){
+        long long x, y;
+        cin >> x >> y;
+        //take in the pair a_i, b_i
+        ab.push_back({x, y});
+    }
+    for (int i=0;i<N;i++){
+        //starting at j=i ensures same pairing isnt done twice (1,2)=(2,1)
+        for (int j=i;j<N;j++){
+
+            //if i equals j, the pairing should only be considered once
+            if (i==j){
+                //access diff[a_i+a_j]
+                diff[ab[i].first+ab[j].first]++;
+                //make sure you dont go out of bounds for diff[b_i+b_j]
+                if (ab[i].second+ab[j].second+1<2*M+1){
+                    //update accordingly
+                    diff[ab[i].second+ab[j].second+1]--;
+                }
+            }else{
+                //everything in here is essentially the same, except we are changing by 2 instead, since (1,2) and (2,1) are separate
+
+                //access diff[a_i+a_j]
+                diff[ab[i].first+ab[j].first]+=2;
+
+                //make sure you dont go out of bounds for diff[b_i+b_j]
+                if (ab[i].second+ab[j].second+1<2*M+1){
+                    //update accordingly
+                    diff[ab[i].second+ab[j].second+1]-=2;
+                }
+            }
+        }
+    }
+    //print out prefix sums
+    long long sum=0;
+    for (int i=0;i<2*M+1;i++){
+        sum+=diff[i];
+        cout << sum << endl;
+    }
+}
