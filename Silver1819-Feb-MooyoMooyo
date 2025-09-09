@@ -1,0 +1,105 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+int N, K;
+int main() {
+    cin >> N >> K;
+    int grid[N][10];
+    for (int i=0;i<=N-1;i++){
+        string s;
+        cin >> s;
+        //separate string into integer values
+        for (int j=0;j<=9;j++){
+            char c = s[j];
+            grid[i][j] = c-'0';
+        }
+    }
+    int cc=-1; //connected components
+    //game ends when connected components can no longer be found
+    while (cc!=0){
+        cc=0;
+        bool vis[N][10]={false};
+        for (int i=N-1;i>=0;i--){
+            for (int j=0;j<=9;j++){
+                
+                //not explored and not empty cell
+                if (!vis[i][j] && grid[i][j]!=0){
+                    
+                    //initialize queue
+                    queue<pair<int, int>> frontier;
+                    frontier.push({i, j});
+                    int val = grid[i][j];
+
+                    //initialize size counter
+                    int size=0;
+
+                    //store cells for the sake of updating
+                    vector<pair<int, int>> cells;
+
+                    while (!frontier.empty()){
+                        if (!vis[frontier.front().first][frontier.front().second]){
+                            //add the four adjacent if possible
+                            if ((frontier.front().first+1 < N && !vis[frontier.front().first+1][frontier.front().second]) && grid[frontier.front().first+1][frontier.front().second] == val ){
+                                frontier.push({frontier.front().first+1, frontier.front().second});
+                            }
+                            if ((frontier.front().first-1> -1 && !vis[frontier.front().first-1][frontier.front().second]) && grid[frontier.front().first-1][frontier.front().second] == val){
+                                frontier.push({frontier.front().first-1, frontier.front().second});
+                            }
+                            if ((frontier.front().second+1<10 && !vis[frontier.front().first][frontier.front().second+1]) &&  grid[frontier.front().first][frontier.front().second+1] == val){
+                                frontier.push({frontier.front().first, frontier.front().second+1});
+                            }
+                            if ((frontier.front().second-1>-1 && !vis[frontier.front().first][frontier.front().second-1]) &&  grid[frontier.front().first][frontier.front().second-1] == val){
+                                frontier.push({frontier.front().first, frontier.front().second-1});
+                            }
+                            //mark current as visited, remove from queue, and increase size count
+                            vis[frontier.front().first][frontier.front().second]=true;
+                            cells.push_back({frontier.front().first, frontier.front().second}); 
+                            frontier.pop();
+                            size++;
+                        }else{
+                            frontier.pop();
+                        }
+                        
+                    }
+
+                    //if meet size requirements update grid
+                    if (size>=K){
+
+                        //while loop wont end
+                        cc++;
+
+                        for (int k=0;k<static_cast<int>(cells.size());k++){
+                            grid[cells[k].first][cells[k].second]=0;
+                        }
+                    }
+                    
+                }
+            }
+        }
+        //iterate over columns, since cells drop if there is a zero below
+        for (int j=0;j<=9;j++){
+            int counter=N-1; //start updating from bottom row
+            for (int i=N-1;i>=0;i--){
+                if (grid[i][j]!=0){ //if a value isnt empty, then the next available cell takes on that value
+                    grid[counter][j]=grid[i][j];
+                    counter--;
+                }
+            }
+            //leftover values are all 0s
+            for (int i=counter;i>=0;i--){
+                grid[i][j]=0;
+            }
+        }
+    }
+
+    //print final picture
+    for (int i=0;i<=N-1;i++){
+        for (int j=0;j<=9;j++){
+            cout << grid[i][j];
+        }
+        cout << endl;
+    }
+    return 0;
+
+}
