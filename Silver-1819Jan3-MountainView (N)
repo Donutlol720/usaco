@@ -1,0 +1,44 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+//mountain structure
+struct mountain{
+    int peakx;
+    int peaky;
+    int left;
+    int right;
+};
+//sort mountains by left endpoint from least to greatest left, tiebreakers determined by right endpoint, THIS IS A MUST
+bool mountainsort(mountain a, mountain b){
+    if (a.left!=b.left){
+        return a.left<b.left;
+    }else{
+        return a.right>b.right;
+    }
+}
+int main() {
+	int N, count=0;
+    cin >> N;
+    mountain mountains[N];
+    //read in values and compute remaining
+    for (int i=0;i<N;i++){
+        cin >> mountains[i].peakx >> mountains[i].peaky;
+        mountains[i].left = mountains[i].peakx-mountains[i].peaky;
+        mountains[i].right = mountains[i].peakx+mountains[i].peaky;
+    }
+    //sort using mountainsort
+    sort(mountains, mountains+N, mountainsort);
+
+    int max=0;
+    for (int i=0;i<=N-1;i++){
+
+        //if a new mountains right endpoint is a new maximum, it must be visible, otherwise, it must not be
+        if (mountains[i].right > max){
+            count++;
+            max = mountains[i].right;
+        }
+    }
+    cout << count;
+
+}
