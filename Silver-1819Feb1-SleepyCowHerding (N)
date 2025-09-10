@@ -1,0 +1,47 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+vector<int> positions;
+int main() {
+	int N;
+    cin >> N;
+
+    for (int i=0;i<N;i++){
+        int x;
+        cin >> x ;
+        positions.push_back(x);
+    }
+
+    sort(positions.begin(), positions.end());
+    //FINDING MINIMUM
+    int left = 0, right = 1, longest=1; //two pointers to find subsequence with most elements
+    while (left < N-1 && right<N){
+        if (positions[right]-positions[left] >= N){
+            left++;
+        }else{
+            longest = max(longest, right-left+1);
+            right++;
+        }
+    }    
+    int gap = positions[N-1] - positions[0] + 1 - N; //milkshake?
+    //check to make sure you dont have edge case labeling: xxxx__x for N=5
+    if ((gap!=1 && longest == N-1) && (positions[N-1]-positions[N-2]==gap+1 || positions[1]-positions[0]==gap+1)){
+        cout << 2 << endl;
+    }else{
+        //otherwise it is simply the number of empty spaces in the longest subsequence
+        cout << N - longest << endl;
+    }
+
+    //FINDING MAXIMUM
+    //As long as we do not have singular cows at both ends, it is equal to number of empty spaces 
+    if (positions[1]!=positions[0]+1 && positions[N-1]!=positions[N-2]+1){
+        int smallest_end_gap=0; //everythings gnarly
+        smallest_end_gap = min(positions[1]- positions[0]-1, positions[N-1]-positions[N-2]-1);
+        
+        //first move must remove this smallest gap, remaining works as normal
+        cout << positions[N-1] - positions[0] + 1 - N - (smallest_end_gap);
+    }else{
+        cout << positions[N-1] - positions[0] + 1 - N;
+    }
+}
