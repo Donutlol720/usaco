@@ -1,0 +1,70 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, M, ans=INT_MAX;
+    cin >> N >> M;
+    vector<vector<int>> adj(N+1); //for N cows, 1 indexed
+    vector<pair<int, int>> pos; //for N cows, 1 indexed
+    pos.push_back({0,0}); //unused cow at index 0
+    for (int i=1;i<=N;i++){
+        int x, y;
+        cin >> x >> y;
+        pos.push_back({x, y});
+    }
+    for (int i=0;i<=M-1;i++){
+        int a, b;
+        cin >> a >> b;
+        adj[a].push_back(b);
+        adj[b].push_back(a);
+    }
+    bool vis[N+1]={false};
+    //iterate over all cows
+    for (int i=1;i<=N;i++){
+        
+        //proceed if never visited
+        if (!vis[i]){
+
+            //rectangulation
+            int xmin=INT_MAX, xmax = INT_MIN, ymin = INT_MAX, ymax = INT_MIN;
+
+            //search
+            deque<int> frontier;
+            frontier.push_back(i);
+            while (!frontier.empty()){
+                int node = frontier.front();
+                vis[node] = true;
+                frontier.pop_front();
+                xmin = min(pos[node].first, xmin);
+                xmax = max(pos[node].first, xmax);
+                ymin = min(pos[node].second, ymin);                    
+                ymax = max(pos[node].second, ymax);
+
+                //explore nodes connected to node
+                for (int j=0;j<static_cast<int>(adj[node].size());j++){
+                    if (!vis[adj[node][j]]){
+                        frontier.push_back(adj[node][j]);
+                    }
+                }
+                
+            }
+
+            ans = min(ans, 2*(ymax-ymin) + 2*(xmax-xmin));
+            //this part is useless, I thought I missed a corner case but the test cases were wrong
+            if (xmax == xmin){
+                ans = min(ans, (ymax-ymin));
+            }
+            if (ymax == ymin){
+                ans = min(ans, (xmax-xmin));
+            }
+            if (xmax==xmin && ymax == ymin){
+                cout << 1;
+                return 0;
+            }
+
+        }
+    }
+    cout << ans;
+}
