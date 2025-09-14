@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+
+    long long N, K, M, ans=0; 
+    cin >> N >> K >> M;
+    
+    long long low = 1, high = N + 1;
+    
+    //binary search
+    while (low <= high) {
+        long long mid = low + (high - low) / 2;
+        long long remaining_loan = N;
+        long long remaining_days = K;
+        bool valid = false;
+        
+        while (remaining_days > 0 && remaining_loan > 0) {
+            long long daily_payment = remaining_loan / mid;
+            
+            //m for all remaining days
+            if (daily_payment < M) {
+                if (remaining_days * M >= remaining_loan) {
+                    possible = true;
+                }
+                break;
+            }
+            
+            
+            long long payments_to_next_tier = (remaining_loan - daily_payment * mid) / daily_payment + 1;
+            long long num_days_to_pay = min(payments_to_next_tier, remaining_days);
+
+            remaining_loan -= num_days_to_pay * daily_payment;
+            remaining_days -= num_days_to_pay;
+        }
+        
+        // mark if loan was successfully repaid
+        if (remaining_loan <= 0) {
+            possible = true;
+        }
+        
+        if (possible) {
+            ans = mid; //valid answer, try to find larger
+            low = mid + 1;
+        } else {
+            high = mid - 1; //not valid, so look for smaller value
+        }
+    }
+    
+    cout << ans;
+    return 0;
+}
