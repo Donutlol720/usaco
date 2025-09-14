@@ -1,0 +1,38 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    int x = (N-N%8)/8 * 15; //1-15, 16-30, there are all 8 moos
+
+    //for example, if you wanted to find the 20th number, the first 16 would be from 1-30
+    //extremely braindead hardcode
+    if (N%8==0){
+        cout << x-1;
+    }
+    if (N%8==1){
+        cout << x+1;
+    }
+    if (N%8==2){
+        cout << x+2;
+    }
+    if (N%8==3){
+        cout << x+4;
+    }
+    if (N%8==4){
+        cout << x+7;
+    }
+    if (N%8==5){
+        cout << x+8;
+    }
+    if (N%8==6){
+        cout << x+11;
+    }
+    if (N%8==7){
+        cout << x+13;
+    }
+    return 0;
+}
