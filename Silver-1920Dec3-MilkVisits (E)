@@ -1,0 +1,83 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, M;
+    cin >> N >> M;
+    string species;
+    cin >> species;
+    map<int, int> region; //maps nodes to regions of same color
+    vector<vector<int>> adj(N+1); //N total nodes, index 0 will be ignored
+    for (int i=1;i<=N-1;i++){
+        int X, Y;
+        cin >> X >> Y;
+        adj[X].push_back(Y);
+        adj[Y].push_back(X);
+    }
+    bool vis[N+1] = {false};
+    int regioncount = 0;
+    //iterate through all nodes
+    for (int i=1;i<=N;i++){
+        
+        //proceed only if unvisited
+        if (!vis[i]){
+            regioncount++;
+            char type = species[i-1]; //since string is 0 indexed
+            deque<int> frontier;
+            frontier.push_back(i);
+            while (!frontier.empty()){
+
+                //proceed only if unvisited
+                if (!vis[frontier.front()]){
+                    int node = frontier.front();
+                    region[node] = regioncount;
+                    vis[node] = true;
+                    frontier.pop_front();
+
+                    //explore adjacent nodes
+                    for (int j=0;j<static_cast<int>(adj[node].size());j++){
+                        if (species[adj[node][j]-1] == type && !vis[adj[node][j]]){
+                            frontier.push_back(adj[node][j]);
+                        }
+                    }
+                }else{
+                    frontier.pop_front();
+                }
+            }
+        }
+    }
+    //queries
+    for (int i=0;i<=M-1;i++){
+        int A, B;
+        char C;
+        cin >> A >> B >> C;
+        
+        //obviously both friends will be satisfied if the starting and ending cows are different types
+        if (species[A-1]!=species[B-1]){
+            cout << 1;
+        }else{
+            //Holstein friend happy
+            if (C=='H'){
+
+                //only unhappy if the only path is filled with wrong breed
+                if (region[A] == region[B] && species[A-1]=='G'){
+                    cout << 0;
+                }else{
+                    cout << 1; //otherwise happy no matter what
+                }
+            }else{
+                
+                //only unhappy if the only path is filled with wrong breed
+                if (region[A] == region[B] && species[A-1]=='H'){
+                    cout << 0;
+                }else{
+                    cout << 1;
+                }
+            }
+        }
+    }
+    
+    
+}
