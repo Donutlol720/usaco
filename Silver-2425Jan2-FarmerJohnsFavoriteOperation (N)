@@ -1,0 +1,61 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+	int T;
+    cin >> T;
+    while (T--){
+        int N, M;
+        cin >> N >> M;
+        long long sum=0, ans=-1; 
+        deque<long long> spinny;  //used to look at prefixes
+
+        //create arr and 2nd array that will be modified
+        for (int i=0;i<=N-1;i++){
+            int x;
+            cin >> x;
+
+            //add x%M to the deque
+            spinny.push_back(x%M);
+        }
+
+        //sort from least to greatest
+        sort(spinny.begin(), spinny.end());
+
+        //"wrap around" extension
+        for (int i=0;i<=N-1;i++){
+            spinny.push_back(spinny[i]+M);
+        }
+
+        //initialize prefix sum
+        vector<long long> pref(2*N+1, 0); //sum of first i terms
+        pref[0] = 0;
+        for (int i=0;i<2*N;i++){
+            pref[i+1] = pref[i] + spinny[i];
+        }
+        
+        //over all possible prefixes, each iteration adds M to the first element and sends it to the back (referring to the window)
+
+        //observing the starting window with start index i and end i+N-1
+        for (int i=0;i<=N-1;i++){
+            
+            int median_index1 = i+(N-1)/2;
+            int median_index2 = i+(N)/2;
+
+            //odd N
+            if (N%2==1){
+                sum = (pref[i + N] - pref[median_index1 + 1]) - (pref[median_index1] - pref[i]);
+            }//even N
+            else{
+                sum = (pref[i + N] - pref[median_index2]) - (pref[median_index1 + 1] - pref[i]);
+            }
+            if (ans==-1 || sum<ans){
+                ans = sum;
+            }
+        }
+        
+        cout << ans << endl;
+
+    }
+}
