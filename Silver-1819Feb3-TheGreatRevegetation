@@ -1,0 +1,72 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, M, regions=0;
+    cin >> N >> M;
+    vector<vector<pair<int, char>>> adj(N+1);
+    vector<pair<pair<int, int>, char>> connections;
+    for (int i=0;i<=M-1;i++){
+        char c;
+        int a, b;
+        cin >> c >> a >> b;
+        adj[a].push_back({b,c});
+        adj[b].push_back({a,c});
+        connections.push_back({{a, b}, c});
+    }
+    //iterative search
+    bool vis[N+1] = {false};
+    map<int, int> color;
+    for (int i=1;i<=N;i++){
+        
+        //unvisited
+        if (!vis[i]){
+            //new connected component
+            regions++;
+            deque<int> frontier;
+            frontier.push_back(i);
+            color[i] = 1;
+            while (!frontier.empty()){
+                int node = frontier.front();
+                vis[node] = true;
+                for (int j=0;j<static_cast<int>(adj[node].size());j++){
+                    if (!vis[adj[node][j].first]){
+                        frontier.push_back(adj[node][j].first);
+                        
+                        //if new node is uncolored
+                        if (color[adj[node][j].first] == 0){
+
+                            //same as current node's color
+                            if (adj[node][j].second == 'S'){
+                                color[adj[node][j].first] = color[node];
+                            }else{
+                                //different color
+                                color[adj[node][j].first] = color[node]*(-1);
+                            }
+                        }
+                    }
+                }
+                frontier.pop_front();
+            }
+        }
+    }
+    //ensure it is possible for all cows to be happy, process all M connections 
+    for (int i=0;i<=M-1;i++){
+        //supposed to be same but theyre different
+        if (connections[i].second == 'S' && color[connections[i].first.first] != color[connections[i].first.second]){
+            cout << 0;
+            return 0;
+        }
+        if (connections[i].second == 'D' && color[connections[i].first.first] == color[connections[i].first.second]){
+            cout << 0;
+            return 0;
+        }
+    }
+    cout << 1;
+    for (int i=0;i<=regions-1;i++){
+        cout << 0;
+    }
+    return 0;
+}
