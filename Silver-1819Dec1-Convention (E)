@@ -1,0 +1,49 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, M, C;
+    cin >> N >> M >> C;
+    vector<int> times;
+    for (int i=0;i<=N-1;i++){
+        int x;
+        cin >> x;
+        times.push_back(x); 
+    }
+    sort(times.begin(), times.end());
+    int index = -1, max_diff = INT_MIN;
+    // while (index <= N-N%C-1){
+    //     index+= C;
+    //     max_diff = max(max_diff, times[index] - times[index-C+1]);
+    // }
+    // if (index!= N-1+C){
+    //     max_diff = max(times[N-1]-times[index+1], max_diff);
+    // }
+    int left = 1, right = times[N-1], mid=0; 
+    while (left <= right){
+        bool work = true;
+        mid = left + (right-left)/2;
+        int busses_started = 1, start = 0;
+        for (int i=0;i<=N-1;i++){
+            //difference is too big or people dont fit in the same bus
+            if (times[i] - times[start]>mid || i-start+1 > C){
+                busses_started++;
+                start = i;
+            }
+        }
+        //takes too many busses to achieve
+        if (busses_started > M){
+            work=false;
+        }
+        //potential smaller minimum
+        if (work){
+            right = mid-1;
+        }else{
+            //must be greater value
+            left = mid+1;
+        }
+    }
+    cout << left;
+}
