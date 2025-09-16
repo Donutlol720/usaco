@@ -1,0 +1,40 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int C, N;
+    cin >> C >> N;
+    priority_queue<long long, vector<long long>, greater<long long>> chickentimes;
+    vector<pair<long long, long long>> cowtimes;
+    for (int i=0;i<=C-1;i++){
+        long long t;
+        cin >> t;
+        chickentimes.push(t);
+    }
+    for (int i=0;i<=N-1;i++){
+        long long a,b;
+        cin >> a >> b;
+        cowtimes.push_back({b, a}); //ending time comes first
+    }
+    //sort by ending time from least to greatest
+    sort(cowtimes.begin(), cowtimes.end());
+    // for (auto const& element : cowtimes){
+    //     cout << element.first << " " << element.second << endl;
+    // }
+    int happycows=0, index=0;
+    //iterate over chickens
+    for (int i=0;i<=C-1;i++){
+        //over all pairs
+        for (int j=0;j<=N-1;j++){
+            if (chickentimes.top() <= cowtimes[j].first && chickentimes.top() >= cowtimes[j].second){
+                cowtimes[j] = {-1, -1}; //processed
+                happycows++;
+                break;
+            }
+        }
+        chickentimes.pop(); //chicken is used up
+    }
+    cout << happycows;
+}
