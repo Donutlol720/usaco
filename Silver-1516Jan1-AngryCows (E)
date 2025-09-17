@@ -1,0 +1,37 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int N,K;
+    cin >> N >> K;
+    vector<int> positions;
+    for (int i=0;i<=N-1;i++){
+        int x;
+        cin >> x;
+        positions.push_back(x);
+    }
+    sort(positions.begin(), positions.end());
+    int left = 1, right = positions[N-1] - positions[0], mid=0;
+    while (left<=right){
+        mid = left + (right-left)/2;
+        int center=positions[0] + mid, cows = 1;
+        for (int i=0;i<=N-1;i++){
+            //shoot a new cow once out of the original blast range
+            if (positions[i] > center + mid){
+                cows++; //new cow used
+                center = positions[i] + mid; //shoot at a new center
+            }
+        }
+        //you dont have the cows you need, radius has to be greater
+        if (cows > K){
+            left = mid+1;
+        }else{
+            right = mid-1;
+        }
+    }
+    cout << left;
+
+    //GOT THIS FIRST TRY AND DID IT IN 8 MINUTES
+}
