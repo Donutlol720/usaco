@@ -1,0 +1,53 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, M;
+    cin >> N >> M;
+    //intervals
+    vector<pair<long long, long long>> gaps; //gnarly
+    for (int i=0;i<=M-1;i++){
+        long long a, b;
+        cin >> a >> b;
+        gaps.push_back({a, b});
+    }
+    sort(gaps.begin(), gaps.end());
+    long long left = 0, right = gaps[M-1].second - gaps[0].first, mid = 0;
+    //binary search
+    while (left<=right){
+        bool works = true;
+        mid = left + (right-left)/2;
+        long long prev_placed = gaps[0].first, interval = 0; //first cow, first index
+        int cows_placed = 0;
+        //iterate over all intervals
+        for (int i=0;i<=M-1;i++){
+            if (i>0){
+                prev_placed = max(prev_placed+mid, gaps[i].first);
+            }
+            if (prev_placed > gaps[i].second){
+                //this is where I was stuck for some time, did not think about the possibility that entire intervals could be skipped
+                prev_placed-=mid;
+                continue;
+            }
+            //adjust position of first cow in this interval
+
+            //number of cows placed in this interval
+            long long cows = (gaps[i].second - prev_placed) / mid + 1;
+            
+            // cout << "mid: " << mid << " placed: " << cows << endl;
+            cows_placed += cows;
+            prev_placed += mid * (cows-1); //position of the last cow in this interval
+        }
+        
+        //if this distance is bad, distance must be less
+        if (cows_placed < N){
+            right = mid - 1;
+        }else{
+            //otherwise distance must be greater
+            left = mid + 1;
+        }
+    }
+    cout << right;
+}
