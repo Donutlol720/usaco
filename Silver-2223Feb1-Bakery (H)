@@ -1,0 +1,70 @@
+// Source: https://usaco.guide/general/io
+//I SPENT SO LONG ON THIS PROBLEM SINCE I USED INT INSTEAD OF LONG LONG 
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int T;
+    cin >> T;
+    while (T--){
+        int N;
+        long long tc, tm;
+        cin >> N >> tc >> tm;
+        //receive queries
+        vector<pair<pair<long long, long long>, long long>> orders;
+        for (int i=0;i<=N-1;i++){
+            long long a,b,c;
+            cin >> a >> b >> c;
+            orders.push_back({{a, b}, c}); //x-int, y-int
+        }
+
+        //binary search of number of upgrades she needs
+        long long low = 0, high = tc+tm-2, mid = 0;
+        while (low<=high){
+            mid = low + (high-low)/2;
+            bool works = true;
+
+            //the lowest you could have x be is 1, or if you spent all moonies towards x, depending on which is greater
+            long long lower_bound = max(1LL, tc-mid);
+
+            //the greatest you could have x be is tc, or if you spent all mooonies towards y and remaining on x
+            long long upper_bound = min(tc, tc+tm-mid-1);
+            for (int i=0;i<N;i++){
+                long long a = orders[i].first.first;
+                long long b = orders[i].first.second;
+                long long c = orders[i].second;
+                long long d = tc+tm-mid;
+                //stupid math insight
+                //(a_i - b_i)x leq c_i - b_i(tc+tm-mid) must be satisfied for all queries
+                if (a==b){
+                    //has no effect on x, if its not possible however, this value of mid must be invalid
+                    if (a*d>c){ //a(x+y) > C
+                        works = false;
+                        break;
+                    }
+                }else{
+                    long long numerator = c-b*d, denominator = a-b;
+                    
+                    //sign of (a_i - b_i) is positive, dont have to flip inequality
+                    if (a>b){
+                        upper_bound = min(upper_bound, numerator/denominator);
+                    }else{
+                        //sign is negative, this will be a x>=, so a lower bound
+                        lower_bound = max(lower_bound, (numerator+denominator+1)/denominator);
+                    }
+                }
+            }
+            //the range, and thus the mid value, will be invalid if the upper bound is less than the lower bound
+            //however, if the upper bound is unobtainable or the lower bound is unobtained (can never get that low on xs or that low on ys given mid) then it is also invalid
+            if (upper_bound < lower_bound || works==false){
+                //need more monies to make it happen
+                low = mid+1;
+            }else{
+                high = mid-1;
+            }
+        
+        }
+        cout << low << endl;
+    }
+       
+}
