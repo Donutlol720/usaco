@@ -1,0 +1,97 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    int T;
+    cin >> T;
+    while (T--){
+        //note that the starting node will be stored in regions[0]
+        int N, M, region_count=-1, N_region=-1;
+        cin >> N >> M;
+        vector<vector<int>> adj(N+1);
+        for (int i=0;i<=M-1;i++){
+            int a, b;
+            cin >> a >> b;
+            adj[a].push_back(b);
+            adj[b].push_back(a);
+        }
+        vector<vector<int>> regions(N+1); 
+        bool vis[N+1]={false};
+        map<int, int> component; //map nodes to their corresponding components
+        //process connected components
+        for (int i=1;i<=N;i++){
+            if (!vis[i]){
+                region_count++;
+                queue<int> frontier;
+                frontier.push(i);
+                while (!frontier.empty()){
+                    int node = frontier.front();
+                    component[node] = region_count;
+                    if (node == N){
+                        N_region = region_count;
+                    }
+                    vis[node] = true;
+                    regions[region_count].push_back(node);
+                    frontier.pop();
+                    for (int j=0;j<static_cast<int>(adj[node].size());j++){
+                        if (!vis[adj[node][j]]){
+                            frontier.push(adj[node][j]);
+                            vis[adj[node][j]] = true;
+                        }
+                    }
+                }
+            }
+        }
+        //if already connected we're done
+        if (component[1] == component[N]){
+            cout << 0 << endl;
+            continue;  // Added missing continue
+        }
+
+        //sort regions
+        for (int i=0;i<=region_count;i++){
+            sort(regions[i].begin(), regions[i].end());
+        }
+
+        //precompute all distances using linear sweep
+        int destination_comp = component[N];
+        int start_comp = component[1];
+        long long toStart[region_count+1], toEnd[region_count+1];
+        fill(toStart, toStart + region_count + 1, LLONG_MAX);
+        fill(toEnd, toEnd + region_count + 1, LLONG_MAX);
+        
+        int start_pointer = 0, endpointer = 0;
+        
+        //linear sweep, preserving start_pointer and endpointer values since the ndoes are in increasing order
+        for (int i=1;i<=N;i++){
+            int comp = component[i];
+            
+            // Update distance to start component
+            while (start_pointer < static_cast<int>(regions[start_comp].size())) {
+                long long min_dist = abs(regions[start_comp][start_pointer] - i);
+                toStart[comp] = min(toStart[comp], min_dist);
+                if (regions[start_comp][start_pointer] < i) start_pointer++;
+                else break;
+            }
+            if (start_pointer) start_pointer--;
+            
+            // Update distance to end component
+            while (endpointer < static_cast<int>(regions[destination_comp].size())) {
+                long long min_dist = abs(regions[destination_comp][endpointer] - i);
+                toEnd[comp] = min(toEnd[comp], min_dist);
+                if (regions[destination_comp][endpointer] < i) endpointer++;
+                else break;
+            }
+            if (endpointer) endpointer--;
+        }
+        
+        //iterate through all components
+        long long ans = LLONG_MAX;
+        for (int i=0;i<=region_count;i++){
+            if (toStart[i] != LLONG_MAX && toEnd[i] != LLONG_MAX) {
+                ans = min(ans, toStart[i]*toStart[i] + toEnd[i]*toEnd[i]);
+            }
+        }
+        cout << ans << endl;
+    }
+    return 0;
+}
