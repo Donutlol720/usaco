@@ -1,0 +1,54 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    vector<pair<pair<long long, long long>, long long>> cows;
+    vector<vector<int>> towards(N); //0 indexed
+    for (int i=0;i<N;i++){
+        long long x, y, p;
+        cin >> x >> y >> p;
+        cows.push_back({{x, y}, p});
+    }
+    //all pairs of cows
+    for (int i=0;i<N;i++){
+        for (int j=i+1;j<N;j++){
+            long long x1 = cows[i].first.first, y1 = cows[i].first.second, x2 = cows[j].first.first, y2 = cows[j].first.second;
+            long long dist = (x1-x2) * (x1-x2) + (y1-y2) * (y1-y2);
+
+            // cow_i's radius is larger than the distance, reachable
+            if (cows[i].second * cows[i].second >= dist){
+                towards[i].push_back(j); //connection from i to j
+            }
+            if (cows[j].second * cows[j].second >= dist){
+                towards[j].push_back(i); //connection from j to i
+            }
+        }
+    }
+    //iterate over all cows
+    int ans = INT_MIN;
+    for (int i=0;i<N;i++){ 
+        bool vis[N] = {false};
+        queue<int> frontier;
+        frontier.push(i);
+        int count = 0;
+        while (!frontier.empty()){
+            int node = frontier.front();
+            vis[node] = true;
+            frontier.pop();
+            count++; //increase count whenever a node is removed
+            for (int j=0;j<static_cast<int>(towards[node].size());j++){
+                if (!vis[towards[node][j]]){
+                    vis[towards[node][j]] = true;
+                    frontier.push(towards[node][j]);
+                }
+            }
+        }
+        ans = max(ans, count);
+    }
+    cout << ans;
+    //did this first try in a few minutes
+}
