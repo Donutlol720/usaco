@@ -1,0 +1,73 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int N, M;
+    cin >> N >> M;
+    
+    vector<vector<pair<long long, pair<long long, long long>>>> flights_base(N+1);
+    for (int i = 0; i < M; i++) {
+        long long c, r, d, s; 
+        cin >> c >> r >> d >> s;
+        flights_base[c].push_back({d, {r, s}});
+    }
+    
+    vector<long long> layover(N+1);
+    for (int i = 1; i <= N; i++) {
+        cin >> layover[i];
+    }
+    layover[1] = 0;  // ignore layovers at airport 1
+    
+    // Adjust departure times by subtracting layovers and sort in reverse order
+    vector<vector<pair<long long, pair<long long, long long>>>> towards(N+1);
+    for (int c = 1; c <= N; c++) {
+        for (auto& flight : flights_base[c]) {
+            long long d = flight.first;
+            long long r = flight.second.first;
+            long long s = flight.second.second;
+            towards[c].push_back({d, {r - layover[c], s}});
+        }
+        sort(towards[c].begin(), towards[c].end(), [](const auto& a, const auto& b) {
+            return a.second.first > b.second.first;  // Sort by departure time in reverse order
+        });
+    }
+    
+    vector<long long> earliest(N+1, LLONG_MAX);
+    earliest[1] = 0;
+    
+    vector<int> idx(N+1, 0);  // Index for each airport's flight list
+    queue<pair<long long, pair<long long, long long>>> q;  // {destination, {departure_time, arrival_time}}
+    
+    // Add all flights from airport 1 to queue
+    for (auto& flight : towards[1]) {
+        q.push(flight);
+    }
+    
+    while (!q.empty()) {
+        auto current_flight = q.front();
+        q.pop();
+        
+        long long d = current_flight.first;
+        long long r = current_flight.second.first;
+        long long s = current_flight.second.second;
+        
+        // Relax this edge
+        earliest[d] = min(earliest[d], s);
+        
+        // Check if any new edges need to be relaxed
+        while (idx[d] < towards[d].size() && towards[d][idx[d]].second.first >= s) {
+            q.push(towards[d][idx[d]]);
+            idx[d]++;
+        }
+    }
+    
+    for (int i = 1; i <= N; i++) {
+        if (earliest[i] == LLONG_MAX) {
+            cout << -1 << endl;
+        } else {
+            cout << earliest[i] << endl;
+        }
+    }
+    
+    return 0;
+}
