@@ -1,0 +1,49 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    freopen("hps.in", "r", stdin);
+    freopen("hps.out", "w", stdout);
+	int N, ans = INT_MIN;
+    cin >> N;
+    //track wins of each move up to a point
+    int H[N+1]={0}, P[N+1]={0}, S[N+1]={0};
+    for (int i=1;i<=N;i++){
+        char c;
+        cin >> c;
+        //paper wins
+        if (c == 'H'){
+            H[i] = H[i-1];
+            P[i] = P[i-1] + 1;
+            S[i] = S[i-1];
+        }else{
+            //scissors wins
+            if (c == 'P'){
+                P[i] = P[i-1];
+                H[i] = H[i-1];
+                S[i] = S[i-1] + 1;
+            }else{
+                //hoof wins
+                S[i] = S[i-1];
+                H[i] = H[i-1] + 1;
+                P[i] = P[i-1];
+            }
+        }
+    }
+    for (int i=0;i<=N;i++){
+
+        //uses hoof then switches to scissors/paper
+        int a = max(H[i] + S[N] - S[i], H[i] + P[N] - P[i]);
+
+        //starts with scissors
+        int b = max(S[i] + H[N] - H[i], S[i] + P[N] - P[i]);
+
+        //starts with paper
+        int c = max(P[i] + H[N] - H[i], P[i] + S[N] - S[i]);
+
+        ans = max(ans, (max(a, (max(b, c)))));
+    }
+    cout << ans;
+}
