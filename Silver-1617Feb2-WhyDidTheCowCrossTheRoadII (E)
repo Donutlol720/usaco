@@ -1,0 +1,39 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, K, B;
+    cin >> N >> K >> B;
+    bool road[N+1] = {false};
+    for (int i=1;i<=B;i++){
+        int x; 
+        cin >> x;
+        road[x] = true; //is broken
+    }
+    int ans = INT_MAX;
+    int count=0;
+    for (int i=1;i<=K;i++){
+        //if broken increase count 
+        if (road[i]){
+            count++;
+        }
+    }
+    //window starting at 2, all the way to window starting at 
+    for (int i=2;i<=N-K+1;i++){
+        ans = min(ans, count);
+        //if the point removed was broken, our count changes
+        if (road[i-1]){
+            count--;
+        }
+        //if new point added is broken, count also changes
+        if (road[i-1+K]){
+            count++;
+        }
+
+    }
+    ans = min(ans, count);
+    cout << ans;
+
+}
