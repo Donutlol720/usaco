@@ -1,0 +1,97 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    //1-----4 (index 1 and 3)
+    //----3-------7 (index 2 and 5)
+    //--------5-------9 (index 4 and 6)
+    //1 2 3 4 5 6
+	int N;
+    cin >> N;
+    //connects the end time to start time
+    map<long long, int> pos_to_index;
+    vector<pair<long long, long long>> intervals;
+    vector<long long> points;
+    int indx[2*N] = {0}; //array where ll values are turned to ints, 1 and 2 are the start and end points of the smallest interval pair
+    long long ans = LLONG_MAX, total_time=0;
+    for (int i=0;i<=N-1;i++){
+        long long x, y;
+        cin >> x >> y;
+        intervals.push_back({x, y});
+        points.push_back(x);
+        points.push_back(y);
+    }
+    sort(points.begin(), points.end());
+    sort(intervals.begin(), intervals.end());
+    
+    //process lifeguards
+    for (int i=0;i<N;i++){
+        pos_to_index[intervals[i].first] = i*2+1;
+        pos_to_index[intervals[i].second] = i*2+2;
+    }
+    //turn positions into integers
+    for (int i=0;i<2*N;i++){
+        indx[i] = pos_to_index[points[i]];
+    }
+    
+    // Calculate total_time by counting covered segments
+    int active_count = 0;
+    for (int i = 0; i < 2*N-1; i++) {
+        if (indx[i] % 2 == 1) active_count++; // start point
+        else active_count--; // end point
+        
+        if (active_count > 0) {
+            total_time += (points[i+1] - points[i]);
+        }
+    }
+    
+    // Check for completely contained intervals
+    // Since intervals are sorted by start time, if end times are not in increasing order,
+    // there must be a contained interval
+    for (int i = 1; i < N; i++) {
+        if (intervals[i].second <= intervals[i-1].second) {
+            // interval i is completely contained in interval i-1
+            cout << total_time;
+            return 0;
+        }
+    }
+    
+    //iterate through
+    int index = 0;
+    while (index < 2*N){
+        long long alonetime = 0;
+        //is an endpoint
+        if (indx[index]%2==0){
+            index++;
+        }else{
+            //find how many times that worker is working alone
+            int z = index+1; //start from the value one to the right of index
+            if (indx[z]%2 == 1){
+                alonetime += points[z] - points[z-1];
+            }
+            while (indx[z]!=indx[index]+1){
+                //end followed by a start, this current worker is working alone
+                if (indx[z]%2 == 0 && indx[z+1]%2 == 1){
+                    alonetime += points[z+1] - points[z];
+                }
+                z++;
+            }
+            //z ends up equal to the index of the end point
+            //if point right before end was an end point, current worker was working alone
+            if ((indx[z-1])%2 == 0){
+                alonetime += points[z] - points[z-1];
+            }
+            index++;
+            // cout << index-1 << " works " << alonetime << " minutes alone" << endl;
+        }
+        if (alonetime != 0) {
+            ans = min(ans, alonetime);
+        }
+    }
+    
+    if (ans == LLONG_MAX) ans = 0;
+    cout << total_time - ans;
+    return 0;
+}
