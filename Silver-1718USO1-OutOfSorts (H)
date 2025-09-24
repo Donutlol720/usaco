@@ -1,0 +1,46 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+map<long long, int> compress;
+int main() {
+	int N;
+    cin >> N;
+    //first one is sorted to map values to indices
+    vector<long long> list;
+    vector<long long> list2;
+
+    //turning values into indices
+    vector<int> compressed;
+
+    for (int i=0;i<=N-1;i++){
+        long long x;
+        cin >> x;
+        list.push_back(x);
+        list2.push_back(x);
+    }
+    sort(list.begin(), list.end());
+    for (int i=0;i<=N-1;i++){
+        compress[list[i]] = i;
+    }
+    for (int i=0;i<=N-1;i++){
+        compressed.push_back(compress[list2[i]]);
+    }
+    bool sorted = false;
+    int ans=INT_MIN;
+    // while (!sorted){
+    //     ans++;
+    //     sorted = true;
+    //     for (int i=0;i<N-1;i++){
+    //         if (compressed[i+1] < compressed[i]){
+    //             swap(compressed[i+1], compressed[i]);
+    //             sorted = false;
+    //         }
+    //     }
+    // }
+    for (int i=0;i<N;i++){
+        ans = max(ans, i - compressed[i] + 1);
+    }
+    //got the insight right very early on but couldn't prove it
+    cout << ans;
+}
