@@ -1,0 +1,67 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+vector<pair<long long, long long>> coords;
+vector<pair<int, int>> compressed_coords;
+vector<long long> xs;
+vector<long long> ys;
+map<long long, int> xmap;
+map<long long, int> ymap;
+int main() {
+	int N;
+    long long ans=0;
+    cin >> N;
+    //used for 2d prefix sums
+    int pref2d[N+1][N+1]={0};
+    for (int i=0;i<=N-1;i++){
+        long long x, y;
+        cin >> x >> y;
+        coords.push_back({x, y});
+        xs.push_back(x);
+        ys.push_back(y);
+    }
+    sort(xs.begin(), xs.end());
+    sort(ys.begin(), ys.end());
+    for (int i=0;i<=N-1;i++){
+        xmap[xs[i]] = i+1;
+        ymap[ys[i]] = i+1;
+    }
+    //turn into a list of indices
+    for (int i=0;i<=N-1;i++){
+        compressed_coords.push_back({xmap[coords[i].first], ymap[coords[i].second]});
+    }
+    
+    //set up the grid with cows
+    for (int i=0;i<=N-1;i++){
+        pref2d[compressed_coords[i].first][compressed_coords[i].second] = 1;
+    }
+    
+    //suild pref2d sums
+    for (int i=1;i<=N;i++){
+        for (int j=1;j<=N;j++){
+            pref2d[i][j] += pref2d[i-1][j] + pref2d[i][j-1] - pref2d[i-1][j-1];
+        }
+    }
+    
+    //over all possible pairs of two points
+    for (int i=0;i<=N-1;i++){
+        for (int j=i;j<=N-1;j++){
+            int x1 = compressed_coords[i].first, y1 = compressed_coords[i].second;
+            int x2 = compressed_coords[j].first, y2 = compressed_coords[j].second;
+            int min_x = min(x1, x2) - 1;
+            int max_x = max(x1, x2) - 1;
+            int min_y = min(y1, y2);
+            int max_y = max(y1, y2);
+            
+            //count points in left rectangle
+            int leftset = pref2d[min_x+1][max_y] - pref2d[min_x+1][min_y-1] - pref2d[0][max_y] + pref2d[0][min_y-1];
+            //count points in right rectangle
+            int rightset = pref2d[N][max_y] - pref2d[N][min_y-1] - pref2d[max_x][max_y] + pref2d[max_x][min_y-1];
+            
+            ans += (long long)leftset * rightset;
+        }
+    }
+    //now include the empty set
+    cout << ans + 1;
+}
