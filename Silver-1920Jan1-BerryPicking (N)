@@ -1,0 +1,58 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    //let b be the minimum nunmber of berries in any basket elsie gets
+    //there is no reason for her to get any more, all her baskets will have b
+    int N, K, ans=INT_MIN;
+    cin >> N >> K;
+    vector<int> trees;
+    for (int i=0;i<=N-1;i++){
+        int x;
+        cin >>x;
+        trees.push_back(x);
+    }
+    sort(trees.begin(), trees.end());
+    //iterate over all possible number of berries in basket
+    for (int b=1;b<=trees[N-1];b++){
+        vector<int> temptrees;
+        temptrees = trees;
+        int baskets_filled=0;
+        for (int i=N-1;i>=0;i--){
+            baskets_filled += (temptrees[i]-temptrees[i]%b)/b;
+            temptrees[i] = temptrees[i]%b;
+        }
+        if (baskets_filled >= K){
+            ans = max(ans, K/2 * b);
+            continue;
+        }
+        //filled less baskets than needed, this must mean no more remaning baskets have enough
+        sort(temptrees.begin(), temptrees.end());
+        //elsie isnt done
+        int sum =0, belsie_filled=0;
+        if (baskets_filled < K/2){
+            for (int i=(static_cast<int>(temptrees.size()) - 1)-(K/2 - baskets_filled);i>=0;i--){
+                sum += temptrees[i];
+                belsie_filled++;
+                if (belsie_filled==K/2){
+                    break;
+                }
+            }
+        }else{
+            //elsie is done, bessie isnt
+            belsie_filled = baskets_filled - K/2;
+            sum += belsie_filled * b;
+            for (int i=(static_cast<int>(temptrees.size())-1);i>=0;i--){
+                sum += temptrees[i];
+                belsie_filled++;
+                if (belsie_filled == K/2){
+                    break;
+                }
+            }
+        }
+        ans = max(ans, sum);
+    }
+    cout << ans;
+}
