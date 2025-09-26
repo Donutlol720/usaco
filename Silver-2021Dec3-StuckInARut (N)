@@ -1,0 +1,77 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    map<pair<long long, long long>, int> cow_to_indx;
+    vector<pair<long long, long long>> Ncows; //North facing cows
+    vector<pair<long long, long long>> Ecows; //East facing cows
+    bool stopped[N+1] = {false};
+    vector<vector<int>> stops(N+1); //the set of cows a cow stops
+    vector<int> stopcount(N+1, 0);
+    for (int i=0;i<=N-1;i++){
+        char d;
+        long long x, y;
+        cin >> d >> x >> y;
+        if (d == 'N'){
+            Ncows.push_back({x,y});
+        }else{
+            Ecows.push_back({x,y});
+        }
+        cow_to_indx[{x,y}] = i;
+    }
+    //sort by x coordinate
+    sort(Ncows.begin(), Ncows.end());
+    //sort by y coordinate
+    sort(Ecows.begin(), Ecows.end(), [](const pair<long long, long long>& a, const pair<int, int>& b){
+        return a.second < b.second;
+    });
+
+    //iterate over North pointing cows 
+    for (int i=0;i<static_cast<int>(Ncows.size());i++){
+        long long x1 = Ncows[i].first, y1 = Ncows[i].second;
+
+        //iterate over all east facing cows
+        for (int j=0;j<static_cast<int>(Ecows.size());j++){
+
+            //must be a unstopped cow, and intersectable, to be considered
+            long long x2 = Ecows[j].first, y2 = Ecows[j].second;
+            int Ecow_index = cow_to_indx[{x2, y2}];
+            if ((x1>x2 && y1<y2) && !stopped[Ecow_index]){
+
+                //ensure that they dont land in the cell at the same time
+                if (!(x1-x2 == y2-y1)){
+
+                    //Ncow gets stopped
+                    if (x1-x2 < y2-y1){
+                        //mark Ncow as stopped and add to stopped list of the Ecow
+                        int Ncow_index = cow_to_indx[{x1, y1}];
+                        stopped[Ncow_index] = true;
+                        stopcount[Ecow_index]++;
+                        stopcount[Ecow_index] += stopcount[Ncow_index];
+                        stops[Ecow_index].push_back(Ncow_index);
+
+                        //exit for loop since this cow no longer moves
+                        break;
+                    }else{ //Ecow gets stopped
+                        //mark as stopped, add the Ecow to the Ncow's stoplist
+                        stopped[Ecow_index] = true;
+                        int Ncow_index = cow_to_indx[{x1, y1}];
+                        stopcount[Ncow_index]++;
+                        stopcount[Ncow_index]+=stopcount[Ecow_index];
+                        stops[Ncow_index].push_back(Ecow_index);
+                    }
+                }
+            }
+        }
+    }
+    for (int i=0;i<=N-1;i++){
+        cout << stopcount[i] << endl;
+    }
+    //FIRST TRY
+}
+    
+
