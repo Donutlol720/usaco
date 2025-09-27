@@ -1,0 +1,90 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, max_area = 0, max_perimeter=0;
+    cin >> N;
+    bool grid[N][N]; //ice cream squares and non-ice cream squares
+    vector<pair<int, int>> icecream; //store coordinates of ice cream squares
+    for (int i=0;i<N;i++){
+        for (int j=0;j<N;j++){
+            char c;
+            cin >> c;
+            //is ice cream
+            if (c=='#'){
+                grid[i][j] = true;
+                icecream.push_back({i, j});
+            }else{
+                grid[i][j] = false;
+            }
+        }
+    }
+    //visited grid
+    bool vis[N][N];
+    memset(vis, false, sizeof(vis));
+
+    //iterate over set of ice cream cells
+    for (int i=0;i<static_cast<int>(icecream.size());i++){
+
+        //ensure not visited
+        int a = icecream[i].first;
+        int b = icecream[i].second;
+        if (!vis[a][b]){
+            int area = 0, perimeter=0;
+            queue<pair<int, int>> frontier;
+            frontier.push({a,b});
+            vis[a][b] = true;
+            while (!frontier.empty()){
+                int x = frontier.front().first;
+                int y = frontier.front().second;
+                frontier.pop();
+                //update area and perimeter
+                area++;
+                //for every adjacent cell that is not ice cream, an additional side is contributed
+                if ((x-1 >=0 && !grid[x-1][y]) || x-1 == -1){ //up
+                    perimeter++;
+                }
+                if ((x+1 <= N-1 && !grid[x+1][y]) || x+1 == N){ //down
+                    perimeter++;
+                }
+                if ((y-1 >=0 && !grid[x][y-1]) || y-1 == -1){ //left
+                    perimeter++;
+                }
+                if ((y+1 <= N-1 && !grid[x][y+1]) || y+1 == N){ //right
+                    perimeter++;
+                }
+                //check 4 points around it for adding to frontier
+                //Directly up - exists and not visisted
+                if (x-1 >= 0 && !vis[x-1][y] && grid[x-1][y]){
+                    vis[x-1][y] = true;
+                    frontier.push({x-1, y});
+                }
+                if (x+1 <= N-1 && !vis[x+1][y] && grid[x+1][y]){
+                    vis[x+1][y] = true;
+                    frontier.push({x+1, y});
+                }
+                if (y-1 >= 0 && !vis[x][y-1] && grid[x][y-1]){
+                    vis[x][y-1] = true;
+                    frontier.push({x, y-1});
+                }
+                if (y+1 <= N-1 && !vis[x][y+1] && grid[x][y+1]){
+                    vis[x][y+1] = true;
+                    frontier.push({x, y+1});
+                }
+            }
+            //if tie for area, pick smaller perimeter
+            if (max_area == area){
+                max_area = area;
+                max_perimeter = min(max_perimeter, perimeter);
+            }else{
+                if (max_area < area){
+                    max_area = area;
+                    max_perimeter = perimeter;
+                }
+            }
+        }
+    }
+    cout << max_area << " " << max_perimeter;
+}
