@@ -1,0 +1,23 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, ans=0;
+    cin >> N;
+    vector<vector<int>> adj(N+1);
+    for (int i=1;i<=N-1;i++){
+        int x, y;
+        cin >> x >> y;
+        adj[x].push_back(y);
+        adj[y].push_back(x);
+    }
+    //loop over all nodes, take the one with most neighbors
+    for (int i=1;i<=N;i++){
+        ans = max(ans, static_cast<int>(adj[i].size()));
+    }
+    ans++;
+    cout << ans;
+    //this took like 1 minute to write
+}
