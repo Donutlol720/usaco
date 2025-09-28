@@ -1,0 +1,148 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+#include <linux/limits.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    int area=0;
+    int maxarea1=0, maxarea2=0;
+    int grid[N][N];
+    for (int i=0;i<=N-1;i++){
+        for (int j=0;j<=N-1;j++){
+            cin >> grid[i][j];
+        }
+    }
+    int vis[N][N] = {0};
+    vector<vector<int>> regionid(N, vector<int>(N, -1));
+    int regions=-1; //regions starts at 0 later
+    vector<vector<int>> connected_regions;
+    map<int, int> num_in_region; //tracks the number associated with a region id
+    map<int, int> area_of_region;
+    for (int i=0;i<=N-1;i++){
+        for (int j=0;j<=N-1;j++){
+            if (vis[i][j]==1){
+                continue;
+            }else{
+                //UPDATE
+                regions++;
+                connected_regions.push_back(vector<int>{});
+                num_in_region[regions] = grid[i][j];
+                //FIND CONNECTED COMPONENT
+                queue<pair<int,int>> frontier;
+                frontier.push({i, j});
+
+                area=0;
+                while (!frontier.empty()){
+                    int X = frontier.front().first;
+                    int Y = frontier.front().second;
+                    if (vis[X][Y]==1){
+                        frontier.pop();
+                    }else{
+                        //visit node, label with id
+                        vis[X][Y] = 1;
+                        regionid[X][Y]=regions;
+                        area++;
+                        if (Y+1<N){
+                            if (regionid[X][Y+1]!=-1 && regionid[X][Y+1]!=regionid[X][Y]){
+                                connected_regions[regionid[X][Y+1]].push_back(regions);
+                                connected_regions[regions].push_back(regionid[X][Y+1]);
+                            }
+                            if (grid[X][Y]==grid[X][Y+1]){
+                                frontier.push({X, Y+1});
+                            }
+                        }
+                        if (X+1<N){
+                            if (regionid[X+1][Y]!=-1 && regionid[X+1][Y]!=regionid[X][Y]){
+                                connected_regions[regionid[X+1][Y]].push_back(regions);
+                                connected_regions[regions].push_back(regionid[X+1][Y]);
+                            }
+                            if (grid[X][Y]==grid[X+1][Y]){
+                                frontier.push({X+1, Y});
+                            }
+                        }
+                        if (X-1>-1){
+                            if (regionid[X-1][Y]!=-1 && regionid[X-1][Y]!=regionid[X][Y]){
+                                connected_regions[regionid[X-1][Y]].push_back(regions);
+                                connected_regions[regions].push_back(regionid[X-1][Y]);
+                            }
+                            if (grid[X][Y]==grid[X-1][Y]){
+                                frontier.push({X-1, Y});
+                            }
+                        }
+                        if (Y-1>-1){
+                            if (regionid[X][Y-1]!=-1 && regionid[X][Y-1]!=regionid[X][Y]){
+                                connected_regions[regionid[X][Y-1]].push_back(regions);
+                                connected_regions[regions].push_back(regionid[X][Y-1]);
+                            }
+                            if (grid[X][Y]==grid[X][Y-1]){
+                                frontier.push({X, Y-1});
+                            }
+                        }
+                    }
+                }
+                area_of_region[regions] = area;
+                maxarea1 = max(maxarea1, area);
+            }
+        }
+    }
+    //visited relationship between two region ids
+    map<pair<int, int>, int> adjacency_visited;
+    //iterate over region ids
+    for (int i=0;i<static_cast<int>(connected_regions.size());i++){
+        //check all regions connected to region i
+        for (int j=0;j<static_cast<int>(connected_regions[i].size());j++){
+            if (adjacency_visited[{i,connected_regions[i][j]}]==1 || adjacency_visited[{connected_regions[i][j], i}]==1){
+                continue;
+            }else{
+                queue<int> frontier;
+                map<int, int> randomvisited; //another visit since apparently im stupid 
+                int a = num_in_region[i], b = num_in_region[connected_regions[i][j]];
+                frontier.push(i);
+                area=0;
+                while (!frontier.empty()){
+                    int current = frontier.front();
+                    frontier.pop();
+                    if (randomvisited[current]>0){
+                        continue;
+                    }
+                    area+=area_of_region[current];
+                    randomvisited[current]=1;
+                    for (int k=0;k<static_cast<int>(connected_regions[current].size());k++){
+                            if (num_in_region[connected_regions[current][k]]==a || num_in_region[connected_regions[current][k]]==b){
+                                if (adjacency_visited[{current, connected_regions[current][k]}]==0){
+                                    //travel to adjacent region that is valid
+                                    frontier.push(connected_regions[current][k]);
+                                    adjacency_visited[{current, connected_regions[current][k]}]=1;
+                                    adjacency_visited[{connected_regions[current][k], current}]=1;
+                                }
+                            }
+                        }
+                }
+                maxarea2 = max(maxarea2, area);
+            }
+        }
+    }
+    cout << maxarea1 <<endl;
+    cout << maxarea2;
+}
+
+
+
+    //VERIFIES IF COMPONENT FINDING AND COMPONENT ADJACENCY WORKS
+    // for (int i=0;i<=N-1;i++){
+    //     for (int j=0;j<=N-1;j++){
+    //         cout << regionid[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // for (int i=0;i<static_cast<int>(connected_regions.size());i++){
+    //     cout << i << " ";
+    //     for (int j=0;j<static_cast<int>(connected_regions[i].size());j++){
+    //         cout << connected_regions[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+
