@@ -1,0 +1,31 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    long long ans=0;
+    //first 2 letters to last 2 letters
+    map<pair<pair<char, char>, pair<char, char>>, int> special_pairs;
+    vector<pair<string, string>> cities;
+    for (int i=0;i<=N-1;i++){
+        string city, state;
+        cin >> city >> state;
+        //add a directed connection
+        char a = city[0];
+        char b = city[1];
+        char c = state[0];
+        char d = state[1]; 
+        //ensure no self-pairing
+        if (a==c && b==d){
+            continue;
+        }
+        //add pairs with reverse property
+        ans+=special_pairs[{{c,d},{a,b}}];
+        special_pairs[{{a,b},{c,d}}]+=1;
+    }
+    cout<<ans;
+
+}
