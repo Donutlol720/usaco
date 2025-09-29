@@ -1,0 +1,124 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+string grid[20];
+bool floodfill(int a, int b, int c, int d){ //floodfill on a given rectangle
+    bool vis[20][20] = {};
+    set<char> colorcount;
+    map<char, int> components; //links characters to the number of components they are associated with
+    //iterative floodfill
+    for (int i=a;i<=c;i++){
+        for (int j=b;j<=d;j++){
+            if (!vis[i][j]){
+                queue<pair<int, int>> frontier;
+                frontier.push({i,j});
+                vis[i][j] = true;
+                //add a component for this color
+                char color = grid[i][j];
+                components[color]++;
+                colorcount.insert(color);
+                //three or more colors in this rectangle
+                if (static_cast<int>(colorcount.size()) > 2){
+                    return false;
+                }
+                while (!frontier.empty()){
+                    int x = frontier.front().first;
+                    int y = frontier.front().second;
+                    frontier.pop();
+                    //check adjacent squares
+                    if (x+1 <= c && !vis[x+1][y] && color == grid[x+1][y]){
+                        vis[x+1][y] = true;
+                        frontier.push({x+1, y});
+                    }
+                    if (x-1>=a && !vis[x-1][y] && color == grid[x-1][y]){
+                        vis[x-1][y] = true;
+                        frontier.push({x-1, y});
+                    }
+                    if (y-1 >= b && !vis[x][y-1] && color == grid[x][y-1]){
+                        vis[x][y-1] = true;
+                        frontier.push({x, y-1});
+                    }
+                    if (y+1 <= d && !vis[x][y+1] && color == grid[x][y+1]){
+                        vis[x][y+1] = true;
+                        frontier.push({x, y+1});
+                    }
+                }
+
+            }
+        }
+    }
+    //1 color returns false
+    if (static_cast<int>(colorcount.size()) == 1){
+        return false;
+    }
+    //as long as there is a fully connected color, return true 
+    //(by now it is already guaranteed that there are 2 colors)
+    bool hasone = false;
+    int sum=0;
+    for (const auto& element : components){
+        if (element.second == 1){
+            hasone = true;
+        }
+        sum+= element.second;
+    }
+    if (sum>2 && hasone){
+        return true;
+    }
+    return false;
+}
+int main() {
+	int N;
+    cin >> N;
+    vector<pair<pair<int, int>, pair<int, int>>> ans; //stores the valid quadruples
+    for (int i=0;i<=N-1;i++){
+        string row;
+        cin >> row;
+        grid[i] = row;
+    }
+    //topleft, bottom right
+    for (int i=0;i<=N-1;i++){
+        for (int j=0;j<=N-1;j++){
+            for (int x=i;x<=N-1;x++){
+                for (int y=j;y<=N-1;y++){
+
+                    //ensure it is not one single cell
+                    if (y!=j || x!=i){
+                        //if it succeeds, compare with all others to ensure this isnt contained
+                        if (floodfill(i, j, x, y)){
+                            bool contained = false;
+                            // Check if new rect is contained in any existing
+                            for (int z = ans.size()-1; z >= 0; z--){
+                                int a = ans[z].first.first;
+                                int b = ans[z].first.second;
+                                int c = ans[z].second.first;
+                                int d = ans[z].second.second;
+        
+                                if (a<=i && c>=x && b<=j && d>=y){
+                                    contained = true;
+                                    break;
+                                }
+    }
+    
+                            if (!contained){
+                            // Remove any old rects contained in new one
+                                for (int z = ans.size()-1; z >= 0; z--){
+                                    int a = ans[z].first.first;
+                                    int b = ans[z].first.second;
+                                    int c = ans[z].second.first;
+                                    int d = ans[z].second.second;
+            
+                                    if (i<=a && x>=c && j<=b && y>=d){
+                                        ans.erase(ans.begin()+z);
+                                    }
+                                }
+                                ans.push_back({{i,j},{x,y}});
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    cout << static_cast<int>(ans.size());
+}
