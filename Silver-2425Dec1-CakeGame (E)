@@ -1,0 +1,36 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int T;
+    cin >> T;
+    while (T--){
+        int N;
+        cin >> N;
+        vector<long long> cakes;
+        //had LLONG_MAX as INT_MAX before and was wrong on almost everything
+        long long prefs[N+1]={0}, sum=0, minimum = LLONG_MAX;
+        prefs[0] = 0;
+        for (int i=0;i<=N-1;i++){
+            int x;
+            cin >> x;
+            cakes.push_back(x);
+            //increase cumulative
+            sum+=x;
+            prefs[i+1] = sum; //prefs[i] is the sum up to index [i-1] in cakes (inclusive)
+        }
+        // for (int i=0;i<=N;i++){
+        //     cout << prefs[i];
+        // }
+        //bessie ends up with least consecutive substring of size N/2+1?
+        //check the subarrays of length N/2+1
+        for (int i=0; i<=N-N/2-1; i++){ // or: i <= N-(N/2+1)
+            minimum = min(minimum, prefs[i+N/2+1] - prefs[i]);
+        }
+        cout << minimum << " " << sum-minimum << endl;
+        
+    }
+
+}
