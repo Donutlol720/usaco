@@ -1,0 +1,45 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	//consider what happens when a new region is formed
+    //big john MUST arrive at a visited point
+    //neither that edge, NOR the reverse edge, could have been traversed
+    int N, regions=0;
+    cin >> N;
+    string s;
+    cin >> s;
+    map<pair<int, int>, bool> vis; //visited for nodes
+    map<pair<pair<int, int>, pair<int, int>>, bool> edges; //tracks visited edges 
+    int curr_x=0, curr_y=0, prev_x=0, prev_y=0;
+    vis[{0,0}] = true;
+    for (int i=0;i<=N-1;i++){
+        prev_x = curr_x;
+        prev_y = curr_y;
+        if (s[i] == 'N'){
+            curr_y++;
+        }
+        if (s[i] == 'E'){
+            curr_x++;
+        }
+        if (s[i] == 'S'){
+            curr_y--;
+        }
+        if (s[i] == 'W'){
+            curr_x--;
+        }
+        //if point is visited and edge+reverse edge not traversed
+        if (vis[{curr_x, curr_y}]==true && edges[{{curr_x, curr_y},{prev_x, prev_y}}]==false && edges[{{prev_x, prev_y},{curr_x, curr_y}}]==false){
+            regions++;
+        }
+        //mark as visited
+        vis[{curr_x, curr_y}] = true;
+        //construct directed edge
+        edges[{{prev_x, prev_y},{curr_x, curr_y}}] = true;
+    }
+    //claim: region count is the same as the number of doors you need
+    cout << regions << endl;
+
+}
