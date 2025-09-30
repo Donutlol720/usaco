@@ -1,0 +1,53 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	//dfs on (sum, moves)
+    int X, Y, K, M, distance = INT_MAX;
+    cin >> X >> Y >> K >> M;
+    queue<pair<pair<int, int>, int>> frontier; //(pail1, pail2, moves)
+    frontier.push({{0,0},0});
+    map<pair<pair<int, int>, int>, bool> vis; //map states to boolean
+    vis[{{0,0},0}] = true;
+    while (!frontier.empty()){
+        int x = frontier.front().first.first;
+        int y = frontier.front().first.second;
+        int m = frontier.front().second; //moves
+        distance = min(distance, abs(M - x - y));
+        frontier.pop();
+        //check the 3 possible moves;
+        //empty left pail - within bounds and unvisited
+        if (m+1 <= K && vis[{{0,y}, m+1}]==false){
+            frontier.push({{0,y}, m+1});
+            vis[{{0,y}, m+1}]=true;
+        }
+        //empty right pail
+        if (m+1 <= K && vis[{{x,0}, m+1}]==false){
+            frontier.push({{x,0}, m+1});
+            vis[{{x,0}, m+1}]=true;
+        }
+        //fill left to brim
+        if (m+1<=K && vis[{{X, y}, m+1}]==false){
+            frontier.push({{X, y}, m+1});
+            vis[{{X, y}, m+1}] = true;
+        }
+        //fill right to brim
+        if (m+1<=K && vis[{{x, Y}, m+1}] == false){
+            frontier.push({{x, Y}, m+1});
+            vis[{{X, y}, m+1}] = true;
+        }
+        //pour right into left
+        if (m+1<=K && vis[{{x+min(X-x, y), y-min(X-x, y)}, m+1}] == false){
+            frontier.push({{x+min(X-x, y), y-min(X-x, y)}, m+1});
+            vis[{{x+min(X-x, y), y-min(X-x, y)}, m+1}] = true;
+        }
+        //pour left into right
+        if (m+1<=K && vis[{{x-min(x, Y-y), y+min(x, Y-y)}, m+1}] == false){
+            frontier.push({{x-min(x, Y-y), y+min(x, Y-y)}, m+1});
+            vis[{{x-min(x, Y-y), y+min(x, Y-y)}, m+1}] = true;
+        }
+    }
+    cout << distance;
+}
