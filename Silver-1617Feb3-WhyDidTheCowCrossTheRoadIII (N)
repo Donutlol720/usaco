@@ -1,0 +1,85 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+map<pair<pair<int, int>, pair<int, int>>, bool> road; //whether or not a road exists betwen the two nodes
+int main() {
+	int N, K, R;
+    cin >> N >> K >> R;
+    vector<vector<bool>> grid(N+1, vector<bool>(N+1, false));
+    vector<vector<bool>> vis(N+1, vector<bool>(N+1, false));
+    vector<int> component_counts; //tracks how many cows in a component 
+    for (int i=0;i<=R-1;i++){
+        int a, b, c, d;
+        cin >> a >> b >> c >> d;
+        road[{{a,b},{c,d}}] = true;
+        road[{{c,d},{a,b}}] = true;
+    }
+    for (int i=0;i<=K-1;i++){
+        int a, b;
+        cin >> a >> b;
+        grid[a][b] = true;
+        //cow on square
+    }
+    //iterative bfs
+    int totalsum = 0;
+    for (int i=1;i<=N;i++){
+        for (int j=1;j<=N;j++){
+            //new point
+            if (!vis[i][j]){
+                queue<pair<int, int>> frontier;
+                int cows=0;
+                frontier.push({i,j});
+                vis[i][j] = true;
+                if (grid[i][j]){
+                    cows++;
+                }
+                while (!frontier.empty()){
+                    int x = frontier.front().first;
+                    int y = frontier.front().second;
+                    frontier.pop();
+                    //check 4 points around
+                    if (x+1 <= N && !vis[x+1][y] && road[{{x, y},{x+1, y}}] == false){ //ensure exists, unvisited, and connected
+                        frontier.push({x+1, y});
+                        vis[x+1][y] = true;
+                        if (grid[x+1][y] == true){
+                            cows++;
+                        }
+                    }
+                    if (x-1>=1 && !vis[x-1][y] && road[{{x, y},{x-1, y}}] == false){
+                        frontier.push({x-1, y});
+                        vis[x-1][y] = true;
+                        if (grid[x-1][y] == true){
+                            cows++;
+                        }
+                    }
+                    if (y+1 <= N && !vis[x][y+1] && road[{{x, y},{x, y+1}}] == false){
+                        frontier.push({x, y+1});
+                        vis[x][y+1] = true;
+                        if (grid[x][y+1] == true){
+                            cows++;
+                        }
+                    }
+                    if (y-1>=1 && !vis[x][y-1] &&  road[{{x, y},{x, y-1}}] == false){
+                        frontier.push({x, y-1});
+                        vis[x][y-1] = true;
+                        if (grid[x][y-1] == true){
+                            cows++;
+                        }
+                    } 
+                }
+                component_counts.push_back(cows);
+                totalsum += cows;
+            }
+        }
+    }
+
+    int ans =0;
+    //iterate over components
+    //a pair is formed between a cow of this component, and another cow in any different component
+    for (const auto& element : component_counts){
+        ans+= element * (totalsum-element);
+    }
+    //all pairs are double counted
+    cout << ans/2;
+}
