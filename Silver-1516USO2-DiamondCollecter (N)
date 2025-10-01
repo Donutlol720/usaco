@@ -1,0 +1,53 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    //claim optimal? we can first finish one interval, then work on the second 
+    //the above claim is correct for all but 3 test cases, idk why its wrong
+    int N, K, ans=0;
+    cin >> N >> K;
+    vector<int> diamonds;
+    vector<int> most_diamonds;
+    for (int i=0;i<=N-1;i++){
+        int x;
+        cin >> x;
+        diamonds.push_back(x);
+    }
+    //sort
+    sort(diamonds.begin(), diamonds.end());
+    int left=0, right=0, interval=1; //1 number only
+    while (right<=N-1){
+        //difference too big, move left pointer up
+        if (diamonds[right] - diamonds[left] > K){
+            left++;
+            interval--;
+            most_diamonds.push_back(interval); 
+        }else{
+            //must have been working range
+            right++;
+            interval++;
+        }
+    }
+    //right poitner is already past, meaning all values >=left will contain everything
+    for (int i=left;i<=N-1;i++){
+        interval--; //decrease by 1 each time, the first time it has index N, which doesnt exist, so must decrease before pushing
+        most_diamonds.push_back(interval);
+    }
+    // for (int i=0;i<=N-1;i++){
+    //     cout << diamonds[i] << " ";
+    // }
+    // cout << endl;
+    // for (int i=0;i<=N-1;i++){
+    //     cout << most_diamonds[i] << " ";
+    // }
+    for (int i=0;i<=N-1;i++){
+        auto offset = most_diamonds[i];
+        // Move the starting iterator forward by i + offset positions
+        auto new_iterator = most_diamonds.begin() + i + offset;
+        int z = *max_element(most_diamonds.begin() + i + offset, most_diamonds.begin() + N);
+        ans = max(ans, most_diamonds[i]+z);
+    }
+    cout << ans;
+}
