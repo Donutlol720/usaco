@@ -1,0 +1,39 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+//this problem is so easy idk why it's classified as hard
+int main() {
+    //it suffices to check all possible three
+    int N, M, count=0;
+    cin >> N >> M;
+    string genes[2*N];
+    for (int i=0;i<=2*N-1;i++){
+        cin >> genes[i];
+    }
+    //all possible triples
+    for (int i=0;i<=M-3;i++){
+        for (int j=i+1;j<=M-2;j++){
+            for (int k=j+1;k<=M-1;k++){
+                map<pair<pair<char, char>, char>, bool> exists;
+                bool works = true;
+                //all triples in spotted cows
+                for (int z = 0;z<=N-1;z++){
+                    exists[{{genes[z][i], genes[z][j]}, genes[z][k]}] = true;
+                }
+                for (int z = N;z<=2*N-1;z++){
+                    //if that triple appears in a spotted cow
+                    if (exists[{{genes[z][i], genes[z][j]}, genes[z][k]}] == true){
+                        works = false;
+                        break;
+                    }
+                }
+                //this triple is valid
+                if (works){
+                    count++;
+                }
+            }
+        }
+    }
+    cout << count;
+}
