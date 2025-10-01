@@ -1,0 +1,82 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+//i made the 4 side observation very early on (i also use 4 sides)
+//but I use a bfs approach for states which probably isnt necessary since
+//there arent that many possibilities. At least it worked first try.
+int main() {
+	int N;
+    long long ans = LLONG_MAX;
+    cin >> N;
+    vector<pair<int, int>> xmain;
+    vector<pair<int, int>> ymain;
+    for (int i=0;i<=N-1;i++){
+        int a, b;
+        cin >> a >> b;
+        xmain.push_back({a,b});
+        ymain.push_back({b,a});
+    }
+    sort(xmain.begin(), xmain.end()); //least to greatest xs
+    sort(ymain.begin(), ymain.end()); //least to greatest ys
+    //clearly only endpoints will be removed
+    map<pair<pair<int, int>, pair<int, int>>, bool> vis;
+    queue<pair<pair<pair<int, int>, pair<int, int>>, int>> frontier; //quintuples (xlow, xhigh, ylow, yhigh, moves)
+    frontier.push({{{0, N-1},{0, N-1}},0});
+    vis[{{0, N-1},{0, N-1}}] = true;
+    while (!frontier.empty()){
+        int xlow = frontier.front().first.first.first;
+        int xhigh = frontier.front().first.first.second;
+        int ylow = frontier.front().first.second.first;
+        int yhigh  =frontier.front().first.second.second;
+        long long area = (xmain[xhigh].first - xmain[xlow].first) * (ymain[yhigh].first - ymain[ylow].first);
+        ans = min(ans, area);
+        int m = frontier.front().second;
+        frontier.pop();
+        //either two bounds change, or one does
+        if (m+1<=3){
+            //xlow and ylow both go up (meaning the point was bottom left)
+            if (vis[{{xlow+1, xhigh},{ylow+1, yhigh}}] == false && xmain[xlow].first == ymain[ylow].second && xmain[xlow].second == ymain[ylow].first){
+                frontier.push({{{xlow+1, xhigh},{ylow+1, yhigh}},m+1});
+                vis[{{xlow+1, xhigh},{ylow+1, yhigh}}] = true;
+            } 
+            //xlow goes up, yhigh goes down (meaning point was top left)
+            if (vis[{{xlow+1, xhigh},{ylow, yhigh-1}}] == false && xmain[xlow].first ==ymain[yhigh].second && xmain[xlow].second == ymain[yhigh].first){
+                frontier.push({{{xlow+1, xhigh},{ylow, yhigh-1}},m+1});
+                vis[{{xlow+1, xhigh},{ylow, yhigh-1}}] = true;
+            }
+            //xhigh goes down, ylow goes up
+            if (vis[{{xlow, xhigh-1},{ylow+1, yhigh}}] == false && xmain[xhigh].first ==ymain[ylow].second && xmain[xhigh].second == ymain[ylow].first){
+                frontier.push({{{xlow, xhigh-1},{ylow+1, yhigh}},m+1});
+                vis[{{xlow, xhigh-1},{ylow+1, yhigh}}] = true;
+            }
+            //xhigh goes down, yhigh goes down
+            if (vis[{{xlow, xhigh-1},{ylow, yhigh-1}}] == false && xmain[xhigh].first ==ymain[yhigh].second && xmain[xhigh].second == ymain[yhigh].first){
+                frontier.push({{{xlow, xhigh-1},{ylow, yhigh-1}},m+1});
+                vis[{{xlow, xhigh-1},{ylow, yhigh-1}}] = true;
+            }
+            //only xhigh goes down
+            if (vis[{{xlow, xhigh-1}, {ylow, yhigh}}] == false){
+                frontier.push({{{xlow, xhigh-1},{ylow, yhigh}},m+1});
+                vis[{{xlow, xhigh-1},{ylow, yhigh}}] = true;
+            }
+            //only xlow goes up
+            if (vis[{{xlow+1, xhigh}, {ylow, yhigh}}] == false){
+                frontier.push({{{xlow+1, xhigh},{ylow, yhigh}},m+1});
+                vis[{{xlow+1, xhigh},{ylow, yhigh}}] = true;
+            }
+            //only ylow goes up
+            if (vis[{{xlow, xhigh}, {ylow+1, yhigh}}] == false){
+                frontier.push({{{xlow, xhigh},{ylow+1, yhigh}},m+1});
+                vis[{{xlow, xhigh},{ylow+1, yhigh}}] = true;
+            }
+            //only yhigh goes down
+            if (vis[{{xlow, xhigh}, {ylow, yhigh-1}}] == false){
+                frontier.push({{{xlow, xhigh},{ylow, yhigh-1}},m+1});
+                vis[{{xlow, xhigh},{ylow, yhigh-1}}] = true;
+            }
+        }
+    }
+    cout << ans;
+
+}
