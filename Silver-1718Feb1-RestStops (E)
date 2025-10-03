@@ -1,0 +1,35 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+#include <climits>
+using namespace std;
+
+int main() {
+    int N;
+	long long L, rf, rb;
+    cin >> L >> N >> rf >> rb;
+    vector<pair<long long, long long>> stops; //tastiness, position
+    for (int i=0;i<=N-1;i++){
+        long long x, y;
+        cin >> x >> y;
+        stops.push_back({y, x});
+    }
+    sort(stops.begin(), stops.end()); //sort by tastiness, last element most
+    long long index = N-1;
+    long long currentpos = LLONG_MIN, prev_pos = 0;
+    long long tastiness=0;
+    while (index>=0){
+        //"optimal" point is already past
+        if (stops[index].second <= currentpos){
+            index--;
+        }else{
+            currentpos = stops[index].second;
+            tastiness += (currentpos - prev_pos) * (rf-rb) * stops[index].first;
+            index--;
+            prev_pos = currentpos;
+        }
+    }
+    cout << tastiness;
+
+    
+}
