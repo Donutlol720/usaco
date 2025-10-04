@@ -1,0 +1,40 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int N;
+    cin >> N;
+    map<int, bool> elsie_owned;
+    vector<int> elsie;
+    vector<int> bessie;
+    for (int i=0;i<=N-1;i++){
+        int x;
+        cin >> x;
+        elsie.push_back(x);
+        elsie_owned[x] = true;
+    }
+    for (int i=1;i<=2*N;i++){
+        if (elsie_owned[i] == false){
+            bessie.push_back(i);
+        }
+    }
+    //sort from least to greatest
+    sort(bessie.begin(), bessie.end());
+    sort(elsie.begin(), elsie.end());
+    int count = 0;
+    while (static_cast<int>(bessie.size()) != 0){
+        //can straight up win 
+        if (bessie.back() > elsie.back()){
+            bessie.pop_back();
+            elsie.pop_back();
+            count++;
+        }else{ //if you cant win, you shouldnt waste a high value card just to lose. Instead, give up a low value card
+            bessie.erase(bessie.begin());
+            elsie.pop_back();
+        }
+    }
+    cout << count;
+    //first try in a few minutes
+}
