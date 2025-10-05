@@ -1,0 +1,84 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+queue<pair<int, int>> frontier; //track all comfortable
+map<pair<int, int>, int> degree; //tracks number of cows surrounding a cow. 
+//1 for exists, 2 for 1 cow, 3 for 2 cows, etc
+void place(int x, int y){ //simulates placing a cow in cell x,y
+    degree[{x, y}] = 1;
+    if (degree[{x+1, y}] > 0){
+        //update this point
+        degree[{x, y}]++;
+        //update the adjacent point
+        degree[{x+1, y}]++;
+    }
+    if (degree[{x-1, y}] > 0){
+        degree[{x, y}]++;
+        degree[{x-1, y}]++;
+    }
+    if (degree[{x, y+1}] > 0){
+        degree[{x ,y}]++;
+        degree[{x, y+1}]++;
+    }
+    if (degree[{x, y-1}] > 0){
+        degree[{x, y}]++;
+        degree[{x, y-1}]++;
+    }
+    //add to frontier if any are now comfortable
+    if (degree[{x+1, y}] == 4){
+        frontier.push({x+1, y});
+    }
+    if (degree[{x-1, y}] == 4){
+        frontier.push({x-1, y});
+    }
+    if (degree[{x, y+1}] == 4){
+        frontier.push({x, y+1});
+    }
+    if (degree[{x, y-1}] == 4){
+        frontier.push({x, y-1});
+    }
+    if (degree[{x, y}] == 4){
+        frontier.push({x, y});
+    }
+}
+int main() {
+	int N;
+    cin >> N;
+    int ans=0;
+    for (int i=0;i<=N-1;i++){
+        int a, b, offset=0;
+        cin >> a >> b;
+        //if that square was already placed in a previous floodfill
+        if (degree[{a, b}]>0){
+            offset = 1; //the number of additional cows placed is 1 less
+        }else{
+            place(a, b);
+        }
+        while (!frontier.empty()){
+            int x = frontier.front().first;
+            int y = frontier.front().second;
+            frontier.pop();
+            //look for the one cell around it that is empty
+            if (degree[{x+1, y}] == 0){
+                //place in that cell
+                place(x+1, y);
+                ans++;
+            }
+            if (degree[{x-1, y}] == 0){
+                place(x-1, y);
+                ans++;
+            }
+            if (degree[{x, y+1}] == 0){
+                place(x, y+1);
+                ans++;
+            }
+            if (degree[{x, y-1}] == 0){
+                place(x, y-1);
+                ans++;
+            }
+        }
+        ans-=offset; //adjust answer for offset, its a permanent change since the queries are cumulative
+        cout << ans << endl;
+    }
+}
