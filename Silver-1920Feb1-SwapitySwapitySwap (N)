@@ -1,0 +1,63 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, M, K;
+    cin >> N >> M >> K;
+    vector<int> lineup;
+    vector<int> temp;
+    for (int i=0;i<=N-1;i++){
+        lineup.push_back(i+1);
+    }
+    for (int i=0;i<=M-1;i++){
+        //take in instructions
+        int x,y;
+        cin >> x >> y;
+        //index starts at x-1
+        //half of length calculation
+        int length = (y-x+1)/2;
+        for (int j=x-1;j<x-1+length;j++){
+            swap(lineup[j], lineup[x+y-2-j]);
+        }
+    }
+    int pos_map[N];//maps original positions to new positions
+    for (int i=0;i<=N-1;i++){
+        pos_map[i] = lineup[i] - 1;
+    }
+    //find components in position map
+    bool vis[N] = {false};
+    map<int, int> index_in_cycle; //map indexes to their position in their cycle
+    vector<vector<int>> cycles;
+    int comp[N] = {0};
+    int cyclecount = -1;
+    for (int i=0;i<=N-1;i++){
+        //unvisited
+        if (!vis[i]){
+            cyclecount++;
+            int start_node = i;
+            int current_node = i;
+            vector<int> temp;
+            //while not a cycle
+            int index=0;
+            bool beginning = true;
+            while (current_node!=start_node || beginning){
+                vis[current_node] = true;
+                temp.push_back(current_node);
+                comp[current_node] = cyclecount;
+                index_in_cycle[current_node] = index;
+                index++;
+                current_node = pos_map[current_node];
+                beginning = false;
+            }
+            cycles.push_back(temp);
+        }
+    }
+    for (int i=1;i<=N;i++){
+        int new_node = cycles[comp[i-1]][(index_in_cycle[i-1] + K) % cycles[comp[i-1]].size()];
+        cout << new_node + 1 << endl;
+    }
+
+
+}
