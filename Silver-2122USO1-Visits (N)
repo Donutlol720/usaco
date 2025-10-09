@@ -1,0 +1,64 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    long long ans=0;
+    cin >> N;
+    map<int, int> toward;
+    long long moos[N+1] = {0};
+    vector<vector<int>> adj(N+1);
+    for (int i=1;i<=N;i++){
+        int a, b;
+        cin >> a >> b;
+        moos[i] = b;
+        toward[i] = a;
+        adj[i].push_back(a);
+        adj[a].push_back(i);
+    }
+    bool vis[N+1] = {false};
+    //iterate over all nodes, identify components
+    for (int i=1;i<=N;i++){
+        //if visited, skip
+        if (!vis[i]){
+            vector<int> temp;
+            long long comp_sum=0;
+            queue<int> frontier;
+            frontier.push(i);
+            vis[i] = true;
+            while (!frontier.empty()){
+                int node = frontier.front();
+                frontier.pop();
+                temp.push_back(node);
+                comp_sum += moos[node];
+                for (auto const& element : adj[node]){
+                    if (!vis[element]){
+                        frontier.push(element);
+                        vis[element] = true;
+                    }
+                }
+            }
+
+            bool temp_visited[N+1] = {false};
+            //find cycle 
+            int current = i;
+            //loop ends when the next node is already traversed, meaning that node is a part of the cycle
+            while (!temp_visited[current]){
+                temp_visited[current] = true;
+                current = toward[current];
+            }
+            //this means current will be the start of a cycle
+            int end = current;
+            long long minimum = LLONG_MAX;
+            while (toward[current]!=end){
+                minimum = min(moos[current], minimum);
+                current = toward[current];
+            }
+            minimum = min(moos[current], minimum);
+            ans += comp_sum - minimum;
+        }
+    }
+    cout << ans;
+}
