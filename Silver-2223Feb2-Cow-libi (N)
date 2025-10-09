@@ -1,0 +1,75 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int G, N, count=0, valid=0, total=0;
+    cin >> G >> N;
+    vector<pair<long long, pair<long long, long long>>> grazings; //time, x, y
+    for (int i=0;i<=G-1;i++){
+        long long x, y, t;
+        cin >> x >> y >> t;
+        grazings.push_back({t, {x, y}});
+    }
+    sort(grazings.begin(), grazings.end());
+    for (int i=0;i<=N-1;i++){
+        long long x, y, t;
+        cin >> x >> y >> t;
+        int left = 0, right = G-1, mid = 0;
+        bool cont_early=false;
+        //if the time is before all grazings
+        if (t < grazings[0].first){
+            if ((grazings[0].first - t)*(grazings[0].first - t) < (grazings[0].second.first - x)* (grazings[0].second.first - x) + (grazings[0].second.second - y)*(grazings[0].second.second - y)){
+                count++;
+                continue;
+            }
+        }
+        if (t > grazings[G-1].first){
+            if ((grazings[G-1].first - t)*(grazings[G-1].first - t) < (grazings[G-1].second.first - x)*(grazings[G-1].second.first - x) + (grazings[G-1].second.second - y)*(grazings[G-1].second.second - y)){
+                count++;
+                continue;
+            }
+        }
+        while (left<=right){
+            mid = (right-left)/2 + left;
+            if (grazings[mid].first < t){
+                left = mid+1;
+            }else{
+                if (grazings[mid].first == t){
+                    //at the exact time of a grazing, was somewhere else
+                    if (x!=grazings[mid].second.first || y!=grazings[mid].second.second){
+                        count++;
+                    }
+                    cont_early = true;
+                    break;
+                }
+                right = mid-1;
+            }
+        }
+        if (cont_early){
+            continue;
+        }
+        //right ends up one to the left 
+        //check if cow can get from earlier grazing, to alibi position, then to later grazing
+        long long dx1 = grazings[right].second.first - x;
+        long long dy1 = grazings[right].second.second - y;
+        long long time_to_alibi = dx1*dx1 + dy1*dy1;
+        
+        long long dx2 = grazings[left].second.first - x;
+        long long dy2 = grazings[left].second.second - y;
+        long long time_from_alibi = dx2*dx2 + dy2*dy2;
+        
+        long long time_available_before = t - grazings[right].first;
+        time_available_before = time_available_before*time_available_before;
+        long long time_available_after = grazings[left].first - t;
+        time_available_after = time_available_after*time_available_after;
+        
+        //if she can't reach alibi in time OR can't reach next grazing from alibi in time
+        if (time_to_alibi > time_available_before || time_from_alibi > time_available_after){
+            //her alibi proves her innocence
+            count++;
+        }
+    }
+    cout << count << endl;
+}
