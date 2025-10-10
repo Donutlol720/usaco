@@ -1,0 +1,43 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, Q;
+    cin >> N >> Q;
+    vector<vector<pair<int, long long>>> adj(N+1); //connected node, relevance
+    for (int i=1;i<=N-1;i++){
+        int p, q, r;
+        cin >> p >> q >> r;
+        adj[p].push_back({q, r});
+        adj[q].push_back({p, r});
+    }
+    
+    for (int i=0;i<Q;i++){
+        long long k;
+        int v;
+        cin >> k >> v;
+        bool vis[N+1] = {false};
+        int count=0;
+        queue<pair<int, long long>> frontier;
+        frontier.push({v, LLONG_MAX});
+        vis[v] = true;
+        while (!frontier.empty()){
+            int node = frontier.front().first;
+            long long relevance = frontier.front().second;
+            frontier.pop();
+            if (node != v){
+                count++;
+            }
+            for (auto const& element : adj[node]){
+                if (!vis[element.first] && min(relevance, element.second) >= k){
+                    vis[element.first] = true;
+                    frontier.push({element.first, min(relevance, element.second)});
+                }
+            }
+        }
+        cout << count << endl;
+    }
+
+}
