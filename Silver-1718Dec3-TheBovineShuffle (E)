@@ -1,0 +1,66 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, ans=0;
+    cin >> N;
+    int towards[N+1]; //directed edge
+    vector<vector<int>> adj(N+1);
+    for (int i=1;i<=N;i++){
+        cin >> towards[i];
+        adj[i].push_back(towards[i]);
+        adj[towards[i]].push_back(i);
+    }
+    //find connected components, then find cycle within each component
+    //iterative bfs
+    bool vis[N+1] = {false};
+    for (int i=1;i<=N;i++){
+        if (!vis[i]){
+            vector<int> temp;
+            queue<int> frontier;
+            frontier.push(i);
+            vis[i] = true;
+            while (!frontier.empty()){
+                int node = frontier.front();
+                frontier.pop();
+                //add to vector for cycle finding
+                temp.push_back(node);
+                //check all adjacent nodes, if unvisited, add
+                for (auto const& element : adj[node]){
+                    if (!vis[element]){
+                        frontier.push(element);
+                        vis[element] = true;
+                    }
+                }
+            }
+            //now component has been identified. Now find cycle
+            int current = i;
+            //vis just for the nodes in this component
+            bool temp_vis[N+1] = {false};
+            //ends when you forcefully run into a visited node.
+            while (!temp_vis[current]){
+                temp_vis[current] = true;
+                //move along directed edge
+                current = towards[current];
+            }
+            //when code ends, current will be the start of a cycle
+            int end = current;
+            //starting from current, go around the cycle until you come back
+            //this tells you the size of the cycle, aka how many points are always filled
+            int length=0;
+            while (towards[current]!=end){
+                current = towards[current];
+                length++;
+            }
+            //process the node right before the end, since it wont be processed
+            if (towards[current] == end){
+                length++;
+            }
+            //add to answer
+            ans+=length;
+        }
+    }
+    cout << ans;
+}
