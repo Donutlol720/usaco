@@ -1,0 +1,51 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    //store inputs
+    vector<int> scores;
+    long long total=0;
+    for (int i=1;i<=N;i++){
+        int x;
+        cin >> x;
+        scores.push_back(x);
+        //total sum
+        total+=x;
+    }
+    //smallest element among all, need to initialize to update correctly
+    int minimum = *min_element(scores.begin(), scores.end());
+    double highest_ans=(double)(total - minimum)/(N-1);
+    int ans_count=0;
+    //store the list of indices that yield maximum grade
+    vector<int> storage;
+    //iterate through possible values
+    for (int i=0;i<=N-3;i++){
+        //update minimum of suffix accordingly
+        if (scores[i] == minimum){
+            minimum = *min_element(scores.begin() + i+1, scores.end());
+        }
+        total-=scores[i];
+        double new_val = (double)(total-minimum)/(N-2-i);
+        if (abs(highest_ans - new_val) < 1e-9){
+            //if the same maximum is made, add to vector
+            ans_count++;
+            storage.push_back(i+1);
+        }
+        if (new_val > highest_ans){
+            //if this is a new maximum, the old vector is wiped
+            highest_ans = new_val;
+            ans_count=1;
+            storage.clear();
+            storage.push_back(i+1);
+        }
+
+    }
+    //print all 
+    for (auto const& element : storage){
+        cout << element << endl;
+    }
+}
