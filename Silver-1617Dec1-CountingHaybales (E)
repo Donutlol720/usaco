@@ -1,0 +1,32 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, Q;
+    cin >> N >> Q;
+    vector<long long> positions;
+    for (int i=0;i<=N-1;i++){
+        long long x;
+        cin >> x;
+        positions.push_back(x);
+    }
+    sort(positions.begin(), positions.end());
+    map<int, long long> pos_at; //map indexes to positions
+    for (int i=1;i<=N;i++){
+        pos_at[i] = positions[i-1];
+    }
+    //process queries
+    for (int i=0;i<=Q-1;i++){
+        long long a, b;
+        cin >> a >> b;
+        
+        // Find first position >= a
+        int index_left = lower_bound(positions.begin(), positions.end(), a) - positions.begin();
+        // Find first position > b
+        int index_right = upper_bound(positions.begin(), positions.end(), b) - positions.begin();
+        
+        cout << index_right - index_left << endl;
+    }
+}
