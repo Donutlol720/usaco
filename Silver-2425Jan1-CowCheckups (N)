@@ -1,0 +1,65 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    long long ans=0;
+    cin >> N;
+    vector<int> amap; //taking value to indices
+    vector<int> bmap;
+    vector<vector<pair<int, int>>> linkedmap(N+1); //taking value to (index, A/B list)
+    auto ways2 = [&](long long x) { return x * (x + 1) / 2; };
+    for (int i=0;i<=N-1;i++){
+        int x; 
+        cin >> x;
+        amap.push_back(x);
+    }
+    for (int i=0;i<=N-1;i++){
+        int x; 
+        cin >> x;
+        bmap.push_back(x);
+        if (x == amap[i]){
+            ans += ways2(i) + ways2(N - 1 - i) + min(i, N - 1 - i) + 1;
+        }
+    }
+    //iterate over possible values
+    for (int pass = 0; pass < 2; pass++) {
+    // Clear and rebuild linkedmap
+        linkedmap.assign(N+1, vector<pair<int, int>>());
+        for (int i=0; i<=N-1; i++){
+            linkedmap[bmap[i]].push_back({i, 1});
+            linkedmap[amap[i]].push_back({i, 0});
+        }
+    
+        // Process (your existing code, but only the FIRST loop)
+        for (int i=1;i<=N;i++){
+            if (linkedmap[i].size() > 0){
+                reverse(linkedmap[i].begin(), linkedmap[i].end());
+                stack<int> bstack;
+                long long stacksum = 0;
+                long long count_greater = 0;
+                for (auto const& element: linkedmap[i]){
+                  if (element.second==1){
+                        bstack.push(N-element.first);
+                        stacksum += N-element.first;
+                    }else{
+                        while (!bstack.empty() && bstack.top() > element.first+1){
+                            stacksum -= bstack.top();
+                            bstack.pop();
+                            count_greater++;
+                        }
+                       ans += stacksum + count_greater * (element.first + 1);
+                    }
+                }
+            }
+        }
+    
+        // Reverse arrays for next pass
+        reverse(amap.begin(), amap.end());
+        reverse(bmap.begin(), bmap.end());
+    }
+    cout << ans;
+    
+}
