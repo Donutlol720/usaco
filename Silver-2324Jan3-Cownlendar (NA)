@@ -1,0 +1,74 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    long long sum = 0;
+    set<long long> days;
+    long long shortest_month = LLONG_MAX;
+    for (int i=0;i<N;i++){
+        long long x;
+        cin >> x;
+        days.insert(x);
+        if (x < shortest_month){
+            shortest_month = x;
+        }
+    }
+    long long fourth = shortest_month/4;
+    if (static_cast<int>(days.size()) <= 3){
+        cout << (1+fourth) * (fourth)/2;
+        return 0;
+    }
+    vector<long long> values(days.begin(), days.end());
+    map<long long, bool> considered;
+    for (int i=0;i<=2;i++){
+        for (int j=i+1;j<=3;j++){
+            //only need to consider factors of difference
+            long long difference = abs(values[i] - values[j]);
+            for (long long x=1;x*x<=difference;x++){
+                if (x>fourth && difference/x > fourth){
+                    break;
+                }
+                if (difference%x != 0){
+                    continue;
+                }
+                if (!considered[x] && x <= fourth){
+                    bool broken = false;
+                    long long temp_sum = 0;
+                    set<long long> residues;
+                    considered[x] = true;
+                    for (auto const& element : values){
+                        residues.insert(element%x);
+                        if (static_cast<int>(residues.size()) > 3){
+                            broken = true;
+                            break;
+                        }
+                    }
+                    if (!broken){
+                        sum += x;
+                    }
+                }
+                if (considered[difference/x]==true || difference/x > fourth){
+                    continue;
+                }
+                set<long long> new_residues;
+                bool broken = false;
+                considered[difference/x] = true;
+                for (auto const& element : values){
+                    new_residues.insert(element%(difference/x));
+                    if (static_cast<int>(new_residues.size()) > 3){
+                        broken = true;
+                        break;
+                    }
+                }
+                if (!broken){
+                    sum += difference/x;
+                }
+            }
+        }
+    }
+    cout << sum;
+}
