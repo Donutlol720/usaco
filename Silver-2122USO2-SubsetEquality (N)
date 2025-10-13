@@ -1,0 +1,75 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	string s, t;
+    int count =0;
+    cin >> s >> t;
+    map<char, int> s_count;
+    map<char, int> t_count;
+    //compute number of times each letter appears in the strings
+    for (int i=0;i<static_cast<int>(s.length());i++){
+        s_count[s[i]]++;
+    }
+    for (int i=0;i<static_cast<int>(t.length());i++){
+        t_count[t[i]]++;
+    }
+
+    char arr[18] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r'};
+    map<pair<char, char>, bool> letter_pairs; //see if property holds under pairs of letters
+    for (int i=0;i<=16;i++){
+        for (int j=i+1;j<=17;j++){
+                if (s_count[arr[i]] == t_count[arr[i]] && s_count[arr[j]] == t_count[arr[j]]){
+                    vector<char> builds;
+                    vector<char> buildt;
+                    for (int z=0;z<static_cast<int>(s.length());z++){
+                        if (s[z] == arr[i] || s[z] == arr[j]){
+                            builds.push_back(s[z]);
+                        }
+                    }
+                    for (int z=0;z<static_cast<int>(t.length());z++){
+                        if (t[z] == arr[i] || t[z] == arr[j]){
+                            buildt.push_back(t[z]);
+                        }
+                    }
+                    if (builds == buildt){
+                        letter_pairs[{arr[i], arr[j]}] = true;
+                    }
+                }
+        }
+    }
+    int Q;
+    cin >> Q;
+    //process queries
+    for (int i=0;i<=Q-1;i++){
+        string query;
+        cin >> query;
+        bool valid = true;
+        if (static_cast<int>(query.length())==1){
+            if (s_count[query[0]] == t_count[query[0]]){
+                count++;
+                cout << 'Y';
+            }else{
+                cout << 'N';
+            }
+            continue;
+        }
+        for (int x=0;x<static_cast<int>(query.length())-1;x++){
+            for (int y=x+1;y<static_cast<int>(query.length());y++){
+                if (letter_pairs[{query[x], query[y]}] == false){
+                    valid = false;
+                }
+            }
+        }
+        if (valid){
+            cout << 'Y';
+            count++;
+        }else{
+            cout << 'N';
+        }
+    }
+    // cout << endl;
+    // cout << count;
+}
