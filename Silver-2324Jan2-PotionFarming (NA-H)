@@ -1,0 +1,99 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int N;
+    cin >> N;
+    vector<int> rooms(N+1);
+    vector<vector<int>> adj(N+1);
+    vector<int> leaves;
+    for (int i=1; i<=N; i++){
+        cin >> rooms[i];
+    }
+    for (int i=0; i<N-1; i++){
+        int a, b;
+        cin >> a >> b;
+        adj[a].push_back(b);
+        adj[b].push_back(a);
+    }
+    queue<int> frontier;
+    vector<bool> vis(N+1, false);
+    vector<int> parent(N+1, 0);
+    vector<int> degree(N+1, 0); // count of unprocessed children
+    
+    frontier.push(1);
+    vis[1] = true;
+    
+    //establish parent-child relationships and count children
+    while (!frontier.empty()){
+        int node = frontier.front();
+        frontier.pop();
+        
+        for (auto const& element : adj[node]){
+            if (vis[element] == false){
+                parent[element] = node;
+                vis[element] = true;
+                frontier.push(element);
+                degree[node]++; // node has one more child
+            }
+        }
+        
+        // if node has no children, it's a leaf
+        if (degree[node] == 0 && node != 1){
+            leaves.push_back(node);
+        }
+    }
+    
+    //handle special case: if root is the only node
+    if (N == 1) {
+        leaves.push_back(1);
+    }
+    
+    vector<int> spawns(N+1, 0);
+    // First L potions spawn at nodes rooms[1], rooms[2], ..., rooms[L]
+    // rooms[i] indicates which node the i-th potion spawns at
+    for (int i=1; i<=static_cast<int>(leaves.size()); i++){
+        spawns[rooms[i]]++;
+    }
+    
+    //process from leaves to root using queue
+    queue<int> processQueue;
+    vector<int> numleaves(N+1, 0);
+    vector<int> potions(N+1, 0);
+    
+    //initialize queue with all leaf nodes
+    for (auto leaf : leaves){
+        processQueue.push(leaf);
+        numleaves[leaf] = 1;
+    }
+    
+    //process nodes from leaves upward
+    while (!processQueue.empty()){
+        int node = processQueue.front();
+        processQueue.pop();
+        
+        // Calculate potions collected through this node
+        // P(node) = min(C(node), sum_of_children_potions + potions_here)
+        potions[node] = min(potions[node] + spawns[node], numleaves[node]);
+        
+        // Propagate to parent (if not root)
+        if (parent[node] != 0){
+            //accumulation
+            int p = parent[node];
+            numleaves[p] += numleaves[node];
+            potions[p] += potions[node];
+            degree[p]--;
+            
+            // If all children of parent are processed, add parent to queue
+            if (degree[p] == 0){
+                processQueue.push(p);
+            }
+        }
+    }
+    
+    cout << potions[1] << endl;
+    
+    return 0;
+}
