@@ -1,0 +1,27 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    vector<long long> patience;
+    for (int i=0;i<=N-1;i++){
+        long long x;
+        cin >> x;
+        patience.push_back(x);
+    }
+    //sort from greatest to least
+    sort(patience.begin(), patience.end(), greater<long long>());
+    long long length = 0;
+    for (auto const& element : patience){
+        // cout << element << endl;
+        if (length <= element){
+            length++;
+        }else{
+            break;
+        }
+    }
+    cout << length;
+}
