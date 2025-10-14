@@ -1,0 +1,55 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    vector<int> cows(N);
+    map<int, int> pos; // maps height to position
+    for (int i=0;i<N;i++){
+        cin >> cows[i];
+        pos[cows[i]] = i+1;
+    }
+    
+    long long total=0;
+    
+    // Forward direction
+    vector<pair<int,int>> sorted_cows; // (height, position)
+    for (int i=0;i<N;i++){
+        sorted_cows.push_back({cows[i], i+1});
+    }
+    sort(sorted_cows.begin(), sorted_cows.end(), greater<pair<int,int>>());
+    
+    set<int> positions; // positions in sorted order
+    for (auto [h, p] : sorted_cows){
+        positions.insert(p);
+        auto it = positions.find(p);
+        ++it;
+        if (it != positions.end()){
+            // position *it is the closest position to the right with a taller cow
+            total += *it - p + 1;
+        }
+    }
+    
+    // Reverse direction
+    reverse(cows.begin(), cows.end());
+    sorted_cows.clear();
+    positions.clear();
+    for (int i=0;i<N;i++){
+        sorted_cows.push_back({cows[i], i+1});
+    }
+    sort(sorted_cows.begin(), sorted_cows.end(), greater<pair<int,int>>());
+    
+    for (auto [h, p] : sorted_cows){
+        positions.insert(p);
+        auto it = positions.find(p);
+        ++it;
+        if (it != positions.end()){
+            total += *it - p + 1;
+        }
+    }
+    
+    cout << total << endl;
+}
