@@ -1,0 +1,78 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    int wishlist[N+1][N];
+    int wishful_thinking[N+1] = {0};
+    vector<vector<int>> towards(N+1); //directed edges
+    for (int i=1;i<=N;i++){
+        bool preferable = true;
+        for (int j=0;j<=N-1;j++){
+            cin >> wishlist[i][j]; //cow i's j+1th choice
+            //if what they get is their first choice
+            if (wishlist[i][0] == i){
+                wishful_thinking[i] = i;
+            }
+            //everything after will not be preferable than what they get
+            if (wishlist[i][j] == i){
+                preferable = false;
+            }
+            if (preferable){
+                //cow with label i would rather have this gift
+                towards[i].push_back(wishlist[i][j]);
+            }
+        }
+    }
+    //graph should be fully connected
+    map<pair<int, int>, bool> reachable; //whether a node is reachable from another
+    for (int i=1;i<=N;i++){
+        //if cow doesn't get their favorite, they need to be considered
+        if (wishful_thinking[i]!=i){
+            queue<int> frontier;
+            frontier.push(i);
+            bool vis[N+1] = {false};
+            vis[i] = true;
+            while (!frontier.empty()){
+                int node = frontier.front();
+                frontier.pop();
+                for (auto const& element : towards[node]){
+                    if (!vis[element]){
+                        frontier.push(element);
+                        vis[element] = true;
+                        reachable[{i ,element}] = true;
+                    }
+                }
+            }
+        }
+    }
+    //iterate over their wishlists
+    for (int i=1;i<=N;i++){
+        if (wishful_thinking[i] == i){
+            cout << i << endl;
+        }else{
+            int curr_indx = 0;
+            //iterate over all their preferable gifts, from most to least
+            bool found = false;
+            while (wishlist[i][curr_indx] != i){
+                //if a cycle exists between i and that gift, i could hope to get that gift
+                if (reachable[{i, wishlist[i][curr_indx]}]==true && reachable[{wishlist[i][curr_indx], i}]){
+                    cout << wishlist[i][curr_indx] << endl;
+                    found = true;
+                    break;
+                }else{
+                    curr_indx++;
+                }
+            }
+            //if none of their preferable gifts are in a cycle
+            //cow forced to keep what they get
+            if (!found){
+                cout << i << endl;
+            }
+        }
+    }
+    
+}
