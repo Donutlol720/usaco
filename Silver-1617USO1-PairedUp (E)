@@ -1,0 +1,47 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N;
+    cin >> N;
+    vector<pair<long long, int>> cows; //output, count
+    for (int i=0;i<=N-1;i++){
+        int x;
+        long long y;
+        cin >> x >> y;
+        cows.push_back({y, x});
+    }
+    sort(cows.begin(), cows.end());
+    int left = 0, right = static_cast<int>(cows.size())-1;
+    long long max_sum = LLONG_MIN;
+    //while not directly adjacent
+    while (left < right){
+        //more cows on the left pair, right pointer decrements
+        max_sum = max(max_sum, cows[left].first + cows[right].first);
+        if (cows[left].second > cows[right].second){
+            cows[left].second -= cows[right].second;
+            right--;
+        }
+        //more cows on right pair, left pointer increments
+        if (cows[left].second < cows[right].second){
+            cows[right].second -= cows[left].second;
+            left++;
+        }
+        //both pointers
+        if (cows[left].second == cows[right].second){
+            cows[left].second = 0;
+            cows[right].second = 0;
+            right--;
+            left++;
+            
+        }
+    }
+    //on same value
+    if (left == right){
+        //pair with self
+        max_sum = max(max_sum, cows[left].first+cows[left].first);
+    }
+    cout << max_sum;
+}
