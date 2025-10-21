@@ -1,0 +1,45 @@
+// Source: https://usaco.guide/general/io
+//Comment: IM THE GOAT
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, M, C;
+    int maxmoonies =0;
+    cin >> N >> M >> C;
+    vector<int> moonies(N+1);
+    for (int i=1;i<=N;i++){
+        cin >> moonies[i];
+    }
+    vector<vector<int>> towards(N+1);
+    for (int i=0;i<M;i++){
+        int a, b;
+        cin >> a >> b;
+        towards[a].push_back(b); //a goes to b
+    }
+    vector<vector<int>> dp(1001, vector<int>(N+1, -1)); //max moonies on [day t][city i]
+    dp[0][1]=0;
+    //one thousand days
+    int days = 1000;
+    int curr_day = 0;
+    while (days--){
+        curr_day++;
+        //check all previous day values
+        for (int i=1;i<=N;i++){
+            int element = dp[curr_day-1][i]; //notice that i is the value of city
+            //for each state, if it exists, iterate though the connected cities for the following dp values
+            if (element!=-1){
+                for (auto const& nextcity : towards[i]){
+                    //the day will be curr_day, city is nextcity
+                    //maximum moonies possible between old value and new
+                    dp[curr_day][nextcity] = max(dp[curr_day][nextcity], element + moonies[nextcity]);
+                    if (nextcity == 1){
+                        //if it goes back to 1, try to update max
+                        maxmoonies = max(maxmoonies, dp[curr_day][nextcity] - C*curr_day*curr_day);
+                    }
+                }
+            }
+        }
+    }
+    cout << maxmoonies;
+}
