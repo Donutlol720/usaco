@@ -1,0 +1,45 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+	int N, M, K;
+    long long cows_used = 0;
+    cin >> N >> M >> K;
+    deque<pair<int, int>> cows; // weight, count
+    for (int i = 0; i < N; i++) {
+        int weight, count;
+        cin >> weight >> count;
+        cows.push_back({weight, count});
+    }
+    sort(cows.begin(), cows.end(), greater<pair<int, int>>());
+    queue<pair<int, int>> frontier; // topweight, count
+    // initialize
+    frontier.push({INT_MAX, M});
+    // loop through cow values, while not empty and there are available towers
+    while (!cows.empty() && !frontier.empty()) {
+        int curr_weight = cows.front().first; // weight of "considered" cow
+        int curr_count = cows.front().second; // number of "considered" cow
+        // consider the value at the front, if there are no places to put it
+        // then that value can be disregarded completely
+        int newtops = 0; // number of new stacks with this new top value
+        while (!frontier.empty() && frontier.front().first - K >= curr_weight) {
+            int removing = min(curr_count, frontier.front().second);
+            frontier.front().second -= removing;
+            newtops += removing;
+            curr_count -= removing;
+            if (frontier.front().second == 0) {
+                frontier.pop();
+            }
+            if (curr_count == 0) {
+                break;
+            }
+        }
+        if (newtops > 0) {
+            frontier.push({curr_weight, newtops});
+            cows_used += newtops;
+        }
+        cows.pop_front();
+    }
+    cout << cows_used;
+    return 0;
+}
