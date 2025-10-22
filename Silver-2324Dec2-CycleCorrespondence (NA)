@@ -1,0 +1,40 @@
+// Source: https://usaco.guide/general/io
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+	int N, K;
+    cin >> N >> K;
+    int a[K], b[K];
+    int forward[K]={0}, reverse[K]={0}; //track which shifts lead to how many alignments
+    set<int> used_labels;
+    map<int, int> reverselabelpos;
+    map<int, int>  labelpos;
+    for (int i=0;i<K;i++){
+        cin >> a[i];
+        used_labels.insert(a[i]);
+        labelpos[a[i]]=i;
+        reverselabelpos[a[i]]=K-1-i;
+    }
+    for (int i=0;i<K;i++){
+        cin >> b[i];
+        used_labels.insert(b[i]);
+        if (labelpos.find(b[i])!=labelpos.end()){ //aligns with some value
+            if (i>=labelpos[b[i]]){
+                forward[i-labelpos[b[i]]]++;
+            }else{
+                forward[i-labelpos[b[i]]+K]++;
+            }
+            if (i>=K-1-labelpos[b[i]]){
+                reverse[i-(K-1-labelpos[b[i]])]++;
+            }else{
+                reverse[K+i-(K-1-labelpos[b[i]])]++;
+            }
+        }
+    }
+    int addon = N - static_cast<int>(used_labels.size());
+    int max1 = *max_element(forward, forward+K);
+    int max2 = *max_element(reverse, reverse+K);
+    cout << max(max1, max2)+addon;
+}
